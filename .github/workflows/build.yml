@@ -39,10 +39,11 @@ jobs:
 
       - name: Extract version
         id: version
+        shell: bash
         run: |
-          $version = python -c "import re; m=re.search(r'__version__\s*=\s*[\"'']([^\"'']+)[\"'']', (Get-Content screenshot_tool/__init__.py -Raw)); print(m.group(1))"
-          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-          echo "Version: $version"
+          VERSION=$(python -c "import re; content=open('screenshot_tool/__init__.py').read(); m=re.search(r'__version__\s*=\s*\"([^\"]+)\"', content); print(m.group(1))")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
 
       - name: Build with PyInstaller
         run: |
