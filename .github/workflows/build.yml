@@ -41,7 +41,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          VERSION=$(python -c "import re; content=open('screenshot_tool/__init__.py').read(); m=re.search(r'__version__\s*=\s*\"([^\"]+)\"', content); print(m.group(1))")
+          VERSION=$(python -c "import re; content=open('screenshot_tool/__init__.py', encoding='utf-8').read(); m=re.search(r'__version__\s*=\s*\"([^\"]+)\"', content); print(m.group(1))")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
