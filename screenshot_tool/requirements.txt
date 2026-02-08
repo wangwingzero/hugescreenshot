@@ -1,0 +1,53 @@
+# Screenshot Tool Dependencies
+
+# GUI Framework
+PySide6>=6.0.0
+
+# Image Processing
+opencv-python>=4.8.0
+
+# Screen Capture
+mss>=9.0.0
+
+# HTTP Requests
+requests>=2.28.0
+
+# OCR - RapidOCR (OpenVINO 后端)
+# 从 v1.9.0 开始，统一使用 OpenVINO 后端
+# OpenVINO 在 Intel 和 AMD CPU 上都能正常工作，且性能更优
+rapidocr-openvino>=1.2.0
+
+# Web Content Extraction (网页转 Markdown)
+trafilatura>=1.6.0
+
+# HTML Parsing (规章查询、单词卡片)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Document Generation (CCAR 规章导出为 DOCX)
+python-docx>=1.0.0
+
+# Browser Automation (浏览器模式获取反爬虫网站，可选)
+# 使用 Patchright（Playwright 的防检测分支）绕过 Cloudflare 等反爬检测
+# 支持用户已安装的 Chrome/Edge，无需额外下载浏览器
+patchright>=1.49.0
+
+# Windows API (用于获取文件管理器路径等)
+pywin32>=306; sys_platform == "win32"
+
+# Process Management (内存监控)
+psutil>=5.9.0
+
+# Clipboard
+pyperclip>=1.8.0
+
+# Testing
+pytest>=7.0.0
+hypothesis>=6.0.0
+pytest-qt>=4.0.0
+
+# Subscription System (Supabase)
+supabase>=2.0.0
+
+# QR Code Generation (赞助二维码)
+qrcode[pil]>=7.0.0

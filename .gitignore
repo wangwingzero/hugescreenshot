@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.coverage
+*.cover
+screenshot_tool/tests/test_output/
+
+# Build
+dist/
+*.egg-info/
+build/虎哥截图*/
+build/build/
+build/dist/
+build/installer/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+state_*.json
+
+# User data
+截图/
+临时截图/
+录屏/
+
+# Environment
+.env
+.env.local

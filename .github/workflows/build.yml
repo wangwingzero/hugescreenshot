@@ -1,0 +1,81 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a release'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install PySide6 rapidocr-openvino openvino opencv-python-headless
+          pip install numpy pillow psutil requests pynput
+          pip install cryptography httpx
+          pip install patchright
+          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+      - name: Extract version
+        id: version
+        run: |
+          $version = python -c "import re; m=re.search(r'__version__\s*=\s*[\"'']([^\"'']+)[\"'']', (Get-Content screenshot_tool/__init__.py -Raw)); print(m.group(1))"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Version: $version"
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller "build/虎哥截图-dir.spec" --noconfirm --clean
+
+      - name: Build installer
+        run: |
+          python -m PyInstaller "build/installer.spec" --noconfirm --clean
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HuGeScreenshot-${{ steps.version.outputs.VERSION }}-Setup-Windows
+          path: dist/HuGeScreenshot-${{ steps.version.outputs.VERSION }}-Setup.exe
+          if-no-files-found: error
+
+  release:
+    needs: [build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
