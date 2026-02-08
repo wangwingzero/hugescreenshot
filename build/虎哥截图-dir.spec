@@ -28,8 +28,9 @@ APP_VERSION = "2.11.0"
 
 # 项目根目录
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(SPEC)))
-# Python 版本目录
-python_root = os.path.join(project_root, 'HuGeScreenshot-python')
+# Python 版本目录（公开仓库：代码在根目录；私有仓库：代码在 HuGeScreenshot-python/）
+_private_python_root = os.path.join(project_root, 'HuGeScreenshot-python')
+python_root = _private_python_root if os.path.isdir(_private_python_root) else project_root
 
 print("=" * 50)
 print(f"虎哥截图 v{APP_VERSION} 目录模式打包 (安装版)")
