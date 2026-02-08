@@ -1,13 +1,22 @@
+# =============================================================
+# 虎哥截图 - 自动构建和发布工作流
+# =============================================================
+# 触发条件: 推送 v*.*.* 标签 或 手动触发
+# 流程: 版本验证 → 创建 Release → 构建 (Win + Mac) → 发布
+#
+# 需要的 Secrets:
+#   RELEASE_PAT - GitHub PAT，需要对 hugescreenshot-releases 仓库有 write 权限
+
 name: Build & Release
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       create_release:
-        description: 'Create a release'
+        description: 'Create a release (only for tag pushes by default)'
         required: false
         default: 'false'
         type: boolean
@@ -15,45 +24,80 @@ on:
 permissions:
   contents: write
 
+env:
+  PYTHON_VERSION: '3.13'
+  PUBLIC_REPO: wangwingzero/hugescreenshot-releases
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: 1
+
 jobs:
+  # ============================================
+  # 第 1 步: 提取版本号
+  # ============================================
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_tag: ${{ steps.check.outputs.is_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if tag push
+        id: check
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_tag=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=$(python3 -c "import re; content=open('screenshot_tool/__init__.py', encoding='utf-8').read(); m=re.search(r'__version__\s*=\s*\"([^\"]+)\"', content); print(m.group(1))")
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+  # ============================================
+  # 第 2 步: Windows 构建
+  # ============================================
   build-windows:
+    name: Build Windows
+    needs: prepare
     runs-on: windows-latest
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: 1
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.13
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set UTF-8 encoding
         run: |
           [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
           chcp 65001
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-          pip install PySide6 rapidocr-openvino openvino opencv-python-headless
-          pip install numpy pillow psutil requests pynput
-          pip install cryptography httpx
+          pip install PySide6 opencv-python-headless numpy
+          pip install rapidocr_openvino openvino pyclipper shapely
+          pip install mss trafilatura beautifulsoup4 lxml
+          pip install psutil requests pynput cryptography httpx
           pip install patchright
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+          if (Test-Path screenshot_tool/requirements.txt) { pip install -r screenshot_tool/requirements.txt }
 
-      - name: Extract version
-        id: version
-        shell: bash
-        run: |
-          VERSION=$(python -c "import re; content=open('screenshot_tool/__init__.py', encoding='utf-8').read(); m=re.search(r'__version__\s*=\s*\"([^\"]+)\"', content); print(m.group(1))")
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
-
-      - name: Build with PyInstaller
+      - name: PyInstaller Build
         run: |
           pyinstaller "build/虎哥截图-dir.spec" --noconfirm --clean
 
@@ -61,18 +105,109 @@ jobs:
         run: |
           python -m PyInstaller "build/installer.spec" --noconfirm --clean
 
-      - name: Upload artifact
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HuGeScreenshot-${{ steps.version.outputs.VERSION }}-Setup-Windows
-          path: dist/HuGeScreenshot-${{ steps.version.outputs.VERSION }}-Setup.exe
-          if-no-files-found: error
+          name: HuGeScreenshot-${{ needs.prepare.outputs.version }}-Setup-Windows
+          path: dist/HuGeScreenshot-${{ needs.prepare.outputs.version }}-Setup.exe
+          if-no-files-found: warn
 
+  # ============================================
+  # 第 3 步: macOS 构建
+  # ============================================
+  build-macos:
+    name: Build macOS
+    needs: prepare
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install PySide6 opencv-python-headless numpy
+          pip install rapidocr_openvino openvino pyclipper shapely
+          pip install mss trafilatura beautifulsoup4 lxml
+          pip install psutil requests cryptography httpx
+
+      - name: Remove problematic openvino frontend dylibs
+        run: |
+          python -c "
+          import openvino, os, glob
+          libs_dir = os.path.join(os.path.dirname(openvino.__file__), 'libs')
+          for f in glob.glob(os.path.join(libs_dir, '*frontend*')):
+              os.remove(f)
+              print(f'Removed: {os.path.basename(f)}')
+          " || echo "Warning: could not remove openvino frontend libs"
+
+      - name: PyInstaller Build for macOS
+        run: |
+          VERSION=${{ needs.prepare.outputs.version }}
+          pyinstaller \
+            --name "虎哥截图" \
+            --windowed \
+            --icon "resources/PNG/虎哥截图.ico" \
+            --osx-bundle-identifier "cn.hudawang.screenshot" \
+            --add-data "screenshot_tool:screenshot_tool" \
+            --hidden-import "rapidocr_openvino" \
+            --hidden-import "openvino" \
+            --hidden-import "cv2" \
+            --hidden-import "PySide6.QtCore" \
+            --hidden-import "PySide6.QtGui" \
+            --hidden-import "PySide6.QtWidgets" \
+            --hidden-import "PySide6.QtNetwork" \
+            --noconfirm \
+            --clean \
+            main.pyw
+
+      - name: Create DMG
+        run: |
+          VERSION=${{ needs.prepare.outputs.version }}
+          brew install create-dmg
+
+          create-dmg \
+            --volname "虎哥截图 v${VERSION}" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 80 \
+            --icon "虎哥截图.app" 175 120 \
+            --app-drop-link 425 120 \
+            "dist/HuGeScreenshot-${VERSION}-macOS.dmg" \
+            "dist/虎哥截图.app" || true
+
+          # Fallback: zip if DMG fails
+          if [ ! -f "dist/HuGeScreenshot-${VERSION}-macOS.dmg" ]; then
+            cd dist
+            zip -r "HuGeScreenshot-${VERSION}-macOS.zip" "虎哥截图.app"
+            cd ..
+          fi
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HuGeScreenshot-${{ needs.prepare.outputs.version }}-macOS
+          path: |
+            dist/HuGeScreenshot-${{ needs.prepare.outputs.version }}-macOS.dmg
+            dist/HuGeScreenshot-${{ needs.prepare.outputs.version }}-macOS.zip
+          if-no-files-found: warn
+
+  # ============================================
+  # 第 4 步: 发布 Release（仅 tag push 触发）
+  # ============================================
   release:
-    needs: [build-windows]
+    name: Publish Release
+    needs: [prepare, build-windows, build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -80,10 +215,6 @@ jobs:
 
       - name: List artifacts
         run: find artifacts -type f
-
-      - name: Extract tag version
-        id: tag
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       # 发布到本仓库（源代码 Release）
       - name: Create Source Release
@@ -94,15 +225,49 @@ jobs:
           draft: false
           prerelease: false
 
-      # 发布到 hugescreenshot-releases 仓库（用户下载 + 软件内自动更新）
+      # 发布到 hugescreenshot-releases（用户下载 + 软件内自动更新）
       - name: Publish to releases repo
         uses: softprops/action-gh-release@v2
         with:
-          repository: wangwingzero/hugescreenshot-releases
-          tag_name: ${{ steps.tag.outputs.VERSION }}
-          name: "${{ steps.tag.outputs.VERSION }}"
+          repository: ${{ env.PUBLIC_REPO }}
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: "v${{ needs.prepare.outputs.version }}"
           files: artifacts/**/*
           generate_release_notes: true
           draft: false
           prerelease: false
           token: ${{ secrets.RELEASE_PAT }}
+
+      # 同步版本号到公开仓库的 README 和 website
+      - name: Sync version to releases repo
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: |
+          VERSION=${{ needs.prepare.outputs.version }}
+          echo "Syncing version v${VERSION} to releases repo..."
+
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ env.PUBLIC_REPO }}.git" releases-repo
+          cd releases-repo
+
+          # 更新版本号
+          for f in README.md website/index.html; do
+            if [ -f "$f" ]; then
+              sed -i "s|download/v[0-9]\+\.[0-9]\+\.[0-9]\+/HuGeScreenshot-[0-9]\+\.[0-9]\+\.[0-9]\+|download/v${VERSION}/HuGeScreenshot-${VERSION}|g" "$f"
+              sed -i "s|HuGeScreenshot-[0-9]\+\.[0-9]\+\.[0-9]\+-Setup\.exe|HuGeScreenshot-${VERSION}-Setup.exe|g" "$f"
+              sed -i "s|HuGeScreenshot-[0-9]\+\.[0-9]\+\.[0-9]\+-macOS\.dmg|HuGeScreenshot-${VERSION}-macOS.dmg|g" "$f"
+            fi
+          done
+          sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-${VERSION}-blue/g" README.md
+          sed -i "s/下载 v[0-9]\+\.[0-9]\+\.[0-9]\+/下载 v${VERSION}/g" README.md
+
+          # 同步 guide.html
+          if [ -f scripts/readme_to_guide.py ]; then
+            python scripts/readme_to_guide.py || true
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "v${VERSION}: 自动更新版本号和下载链接"
+          git push origin main
+          echo "✅ Releases repo synced!"
