@@ -18,6 +18,9 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +29,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+
+      - name: Set UTF-8 encoding
+        run: |
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          chcp 65001
 
       - name: Install dependencies
         run: |
