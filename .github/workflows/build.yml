@@ -81,10 +81,28 @@ jobs:
       - name: List artifacts
         run: find artifacts -type f
 
-      - name: Create Release
+      - name: Extract tag version
+        id: tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # 发布到本仓库（源代码 Release）
+      - name: Create Source Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
           generate_release_notes: true
           draft: false
           prerelease: false
+
+      # 发布到 hugescreenshot-releases 仓库（用户下载 + 软件内自动更新）
+      - name: Publish to releases repo
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: wangwingzero/hugescreenshot-releases
+          tag_name: ${{ steps.tag.outputs.VERSION }}
+          name: "${{ steps.tag.outputs.VERSION }}"
+          files: artifacts/**/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          token: ${{ secrets.RELEASE_PAT }}
