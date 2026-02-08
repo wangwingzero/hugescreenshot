@@ -1,0 +1,6 @@
+# 支付成功页面 - 直接返回 HTML 内容
+/payment-success  /payment-success.html  200!
+
+# 其他页面
+/guide  /guide.html  200!
+/confirm  /confirm.html  200!

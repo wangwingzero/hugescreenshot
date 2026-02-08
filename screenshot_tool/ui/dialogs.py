@@ -2228,7 +2228,7 @@ class SettingsDialog(QDialog):
         app_layout.addRow("项目主页:", homepage_link)
 
         # GitHub 链接
-        github_link = QLabel('<a href="https://github.com/wangwingzero/hugescreenshot-releases">GitHub 仓库</a>')
+        github_link = QLabel('<a href="https://github.com/wangwingzero/hugescreenshot">GitHub 仓库</a>')
         github_link.setOpenExternalLinks(True)
         github_link.setStyleSheet("color: #3B82F6;")
         app_layout.addRow("项目地址:", github_link)
@@ -2372,7 +2372,7 @@ class SettingsDialog(QDialog):
                     
                     checker = VersionChecker()
                     # 公开仓库不需要 token
-                    version_info = checker.get_latest_version("wangwingzero/hugescreenshot-releases")
+                    version_info = checker.get_latest_version("wangwingzero/hugescreenshot")
                     
                     if version_info:
                         has_update = VersionChecker.is_newer_version(__version__, version_info.version)

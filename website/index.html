@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="虎哥飞行空间 - 飞行员的数字工具箱，提供截图工具、飞行计算器、历史学习等实用软件">
+    <meta name="theme-color" content="#f8fafc">
+    <title>虎哥飞行空间 - 极致生产力体验</title>
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            var hash = window.location.hash;
+            if (hash && hash.indexOf('type=signup') !== -1) {
+                window.location.replace('confirm.html' + hash);
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            /* 主色调 */
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-accent: #f97316;
+            --color-accent-hover: #ea580c;
+            --color-accent-glow: rgba(249, 115, 22, 0.4);
+            
+            /* 背景色 */
+            --bg-body: #f0f4f8;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --bg-card-hover: rgba(255, 255, 255, 0.9);
+            --bg-modal-overlay: rgba(10, 22, 40, 0.6);
+            
+            /* 文字色 */
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            /* 边框和阴影 */
+            --border-card: rgba(255, 255, 255, 0.2);
+            --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
+            --shadow-card-hover: 0 20px 40px -8px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 0 30px var(--color-accent-glow);
+            
+            /* 渐变 */
+            --gradient-mesh-1: rgba(37, 99, 235, 0.15);
+            --gradient-mesh-2: rgba(249, 115, 22, 0.1);
+            --gradient-mesh-3: rgba(168, 85, 247, 0.08);
+            
+            /* 动画时长 */
+            --transition-fast: 0.2s;
+            --transition-normal: 0.3s;
+            --transition-slow: 0.5s;
+            
+            /* 兼容旧变量名（保持向后兼容） */
+            --card-bg: var(--bg-card);
+            --card-bg-hover: var(--bg-card-hover);
+            --card-border: var(--border-card);
+            --primary: var(--color-primary);
+            --primary-hover: var(--color-primary-hover);
+            --secondary: #3b82f6;
+            --cta: var(--color-accent);
+            --cta-hover: var(--color-accent-hover);
+            --text-main: var(--text-primary);
+            --btn-bg: #0f172a;
+            --btn-text: #ffffff;
+        }
+
+        /* 暗色主题变量 */
+        [data-theme="dark"] {
+            --bg-body: #0a1628;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card-hover: rgba(30, 41, 59, 0.9);
+            --bg-modal-overlay: rgba(0, 0, 0, 0.8);
+            
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            
+            --border-card: rgba(255, 255, 255, 0.1);
+            --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.3);
+            --shadow-card-hover: 0 20px 40px -8px rgba(0, 0, 0, 0.5);
+            
+            --gradient-mesh-1: rgba(37, 99, 235, 0.2);
+            --gradient-mesh-2: rgba(249, 115, 22, 0.15);
+            --gradient-mesh-3: rgba(168, 85, 247, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background-color var(--transition-normal), color var(--transition-normal);
+        }
+
+        /* 渐变网格背景 (Gradient Mesh) */
+        .gradient-mesh {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
+            /* Performance hint for continuous animation - Requirements: 11.3 */
+            will-change: transform;
+        }
+
+        .gradient-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--gradient-mesh-1);
+            top: -200px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .gradient-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--gradient-mesh-2);
+            top: 50%;
+            right: -150px;
+            animation-delay: -7s;
+        }
+
+        .gradient-orb-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--gradient-mesh-3);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 头部 - Hero 入场动画 Requirements: 8.1 */
+        header {
+            text-align: center;
+            margin-top: 48px;
+            margin-bottom: 56px;
+            animation: fade-up 0.6s ease-out;
+        }
+
+        .logo-box {
+            width: 88px;
+            height: 88px;
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 
+                0 20px 40px -10px rgba(15, 23, 42, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Logo 发光效果 - Requirements: 5.2, 5.4 */
+        .logo-box::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            background: var(--color-accent);
+            border-radius: inherit;
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: 0;
+        }
+
+        .logo-box:hover::before {
+            opacity: 0.4;
+        }
+
+        .logo-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+            border-radius: 22px 22px 0 0;
+            z-index: 1;
+        }
+
+        .logo-box svg {
+            width: 44px;
+            height: 44px;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: clamp(36px, 8vw, 56px);
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--color-primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 17px;
+            color: var(--text-muted);
+            max-width: 480px;
+            line-height: 1.7;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* 产品网格 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out 0.15s backwards;
+        }
+
+        @media (max-width: 960px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 24px 16px;
+            }
+            
+            header {
+                margin-top: 32px;
+                margin-bottom: 40px;
+            }
+            
+            /* Theme Switcher 移动端优化 - Requirements: 10.3 */
+            .theme-switcher {
+                top: 16px;
+                right: 16px;
+                width: 44px;
+                height: 44px;
+            }
+            
+            .theme-switcher svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        .product-card {
+            position: relative;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal), border-color var(--transition-normal);
+            display: flex;
+            flex-direction: column;
+            cursor: default;
+        }
+
+        /* Card Glow Effect - 发光效果伪元素层 Requirements: 6.2, 6.3 */
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, var(--color-accent-glow), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Hover state - add will-change hint for better performance - Requirements: 11.3 */
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-card-hover), var(--shadow-glow);
+            background: var(--card-bg-hover);
+            will-change: transform, box-shadow;
+        }
+
+        /* Hover state for glow effect - 悬停时发光显现 */
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-icon svg {
+            width: 28px;
+            height: 28px;
+            color: #fff;
+        }
+
+        .product-icon.screenshot { 
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); 
+        }
+        .product-icon.flight { 
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+        }
+        .product-icon.history { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+        }
+
+        .product-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .product-platform {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+            font-weight: 500;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 18px;
+            flex: 1;
+        }
+
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            font-size: 11px;
+            padding: 5px 10px;
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .product-action {
+            margin-top: auto;
+        }
+
+        /* 平台切换标签 */
+        .platform-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 10px;
+            padding: 3px;
+        }
+
+        [data-theme="dark"] .platform-tabs {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .platform-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .platform-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .platform-tab.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .platform-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .platform-tab svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .platform-content {
+            display: none;
+        }
+
+        .platform-content.active {
+            display: block;
+        }
+
+        /* 按钮样式 - Requirements: 10.2 (min 44x44px touch target) */
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            text-decoration: none;
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            min-height: 48px;
+        }
+
+        .action-btn:hover {
+            background: #1e293b;
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.25);
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .download-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .download-main {
+            flex: 1;
+        }
+
+        .download-alt {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Alt link - Requirements: 10.2 (min 44x44px touch target) */
+        .alt-link {
+            flex: 1;
+            padding: 12px 10px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alt-link:hover {
+            background: #e2e8f0;
+        }
+
+        /* Primary CTA Button - 主下载按钮 Requirements: 7.1, 7.3, 7.4 */
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+            color: white;
+            min-height: 48px;
+        }
+
+        .action-btn.primary svg {
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px -4px var(--color-accent-glow);
+            will-change: transform, box-shadow;
+        }
+
+        .action-btn.secondary {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .action-btn.secondary:hover {
+            background: #e2e8f0;
+            box-shadow: none;
+        }
+
+        /* 二维码弹窗 - Glassmorphism 效果 Requirements: 12.1 */
+        .qr-modal {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-modal-overlay);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-normal), visibility var(--transition-normal);
+            z-index: 1000;
+        }
+
+        .qr-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .qr-modal-content {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 320px;
+            margin: 20px;
+            transform: scale(0.9);
+            transition: transform var(--transition-normal), background-color var(--transition-normal), box-shadow var(--transition-normal);
+        }
+
+        .qr-modal.show .qr-modal-content {
+            transform: scale(1);
+        }
+
+        .qr-modal-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .qr-modal-content img {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .qr-modal-content p {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* QR close button - Requirements: 10.2 (min 44x44px touch target) */
+        .qr-close-btn {
+            margin-top: 20px;
+            padding: 14px 28px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 48px;
+        }
+
+        .qr-close-btn:hover {
+            background: #1e293b;
+        }
+
+        /* 页脚 */
+        .footer {
+            margin-top: 72px;
+            padding-bottom: 32px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Footer link - Requirements: 10.2 (min 44x44px touch target) */
+        .footer-link {
+            position: relative;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+            cursor: pointer;
+            padding: 12px 8px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Footer link underline animation - Requirements: 9.3 */
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--color-accent);
+            transition: width var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: var(--color-accent);
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        .footer-divider {
+            color: #cbd5e1;
+        }
+
+        .footer-copyright {
+            margin-top: 14px;
+        }
+
+        .footer-icp {
+            margin-top: 16px;
+        }
+
+        .footer-icp a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(249, 115, 22, 0.06) 100%);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: all var(--transition-fast);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .footer-icp a::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--color-accent-glow);
+        }
+
+        .footer-icp a:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(249, 115, 22, 0.1) 100%);
+            border-color: var(--color-accent);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px -2px var(--color-accent-glow);
+        }
+
+        /* 暗色主题下的备案号样式 */
+        [data-theme="dark"] .footer-icp a {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(249, 115, 22, 0.1) 100%);
+        }
+
+        [data-theme="dark"] .footer-icp a:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(249, 115, 22, 0.15) 100%);
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero 入场动画 - Requirements: 8.1 */
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Scroll Animation Initial States - Requirements: 8.3 */
+        [data-animate] {
+            opacity: 0;
+            transition: opacity var(--transition-slow), transform var(--transition-slow);
+        }
+
+        [data-animate="fade-up"] {
+            transform: translateY(20px);
+        }
+
+        [data-animate="fade-in"] {
+            transform: none;
+        }
+
+        [data-animate="scale-up"] {
+            transform: scale(0.95);
+        }
+
+        /* Animated Final State */
+        [data-animate].animated {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Stagger delays based on data-delay attribute */
+        [data-animate][data-delay="1"] {
+            transition-delay: 0.1s;
+        }
+
+        [data-animate][data-delay="2"] {
+            transition-delay: 0.2s;
+        }
+
+        [data-animate][data-delay="3"] {
+            transition-delay: 0.3s;
+        }
+
+        /* Theme Switcher 主题切换按钮 */
+        .theme-switcher {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-normal), border-color var(--transition-normal);
+        }
+
+        .theme-switcher:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-glow);
+            will-change: transform, box-shadow;
+        }
+
+        .theme-switcher .icon-sun,
+        .theme-switcher .icon-moon {
+            position: absolute;
+            transition: opacity var(--transition-fast), transform var(--transition-fast);
+        }
+
+        /* Light mode: show sun, hide moon */
+        .theme-switcher .icon-sun {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        .theme-switcher .icon-moon {
+            opacity: 0;
+            transform: rotate(-90deg);
+        }
+
+        /* Dark mode: hide sun, show moon */
+        [data-theme="dark"] .theme-switcher .icon-sun {
+            opacity: 0;
+            transform: rotate(90deg);
+        }
+
+        [data-theme="dark"] .theme-switcher .icon-moon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        /* Glassmorphism fallback for browsers without backdrop-filter support */
+        /* Requirements: 3.4 */
+        @supports not (backdrop-filter: blur(20px)) {
+            .product-card,
+            .qr-modal-content,
+            .theme-switcher {
+                background: rgba(255, 255, 255, 0.95);
+            }
+            
+            [data-theme="dark"] .product-card,
+            [data-theme="dark"] .qr-modal-content,
+            [data-theme="dark"] .theme-switcher {
+                background: rgba(30, 41, 59, 0.95);
+            }
+        }
+
+        /* 减少动画偏好 - Requirements: 8.4 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .gradient-orb {
+                animation: none !important;
+            }
+            
+            /* 确保 data-animate 元素立即显示，不受动画影响 */
+            [data-animate] {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-switcher" id="themeSwitcher" aria-label="切换主题">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <div class="gradient-mesh">
+        <div class="gradient-orb gradient-orb-1"></div>
+        <div class="gradient-orb gradient-orb-2"></div>
+        <div class="gradient-orb gradient-orb-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <!-- Rocket Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                </svg>
+            </div>
+            <h1>虎哥飞行空间</h1>
+            <p class="subtitle">飞行员的数字工具箱，让工作更高效，学习更轻松</p>
+        </header>
+
+        <div class="products-grid">
+            <!-- 虎哥截图 -->
+            <div class="product-card" data-animate="fade-up" data-delay="0">
+                <div class="product-icon screenshot">
+                    <!-- Camera/Screenshot Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                        <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                </div>
+                <div class="product-title">虎哥截图</div>
+                <div class="product-platform">Windows & macOS 桌面软件</div>
+                <div class="product-desc">
+                    极致生产力体验。本地 OCR 文字识别、多引擎翻译、Anki 制卡、录屏，一气呵成。
+                </div>
+                <div class="product-features">
+                    <span class="feature-tag">离线 OCR</span>
+                    <span class="feature-tag">聚合翻译</span>
+                    <span class="feature-tag">Anki 制卡</span>
+                    <span class="feature-tag">录屏</span>
+                </div>
+                <div class="product-action">
+                    <div class="download-links">
+                        <!-- 平台切换 -->
+                        <div class="platform-tabs" id="platformTabs">
+                            <button class="platform-tab active" data-platform="windows" onclick="switchPlatform('windows')">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+                                Windows
+                            </button>
+                            <button class="platform-tab" data-platform="macos" onclick="switchPlatform('macos')">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                                macOS
+                            </button>
+                        </div>
+
+                        <!-- Windows 下载 -->
+                        <div class="platform-content active" id="platform-windows">
+                            <a href="https://ghproxy.net/https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-Setup.exe" class="action-btn primary download-main" data-proxy="1">
+                                加速下载 ①
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </a>
+                            <div class="download-alt" style="margin-top: 8px;">
+                                <a href="https://ghfast.top/https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-Setup.exe" class="alt-link" data-proxy="2">加速 ②</a>
+                                <a href="https://ghproxy.cc/https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-Setup.exe" class="alt-link" data-proxy="3">加速 ③</a>
+                                <a href="https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-Setup.exe" class="alt-link" data-proxy="github">GitHub</a>
+                            </div>
+                        </div>
+
+                        <!-- macOS 下载 -->
+                        <div class="platform-content" id="platform-macos">
+                            <a href="https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-macOS.dmg" class="action-btn primary download-main">
+                                下载 macOS 版
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </a>
+                            <div class="download-alt" style="margin-top: 8px;">
+                                <a href="https://github.com/wangwingzero/hugescreenshot/releases/download/v2.11.0/HuGeScreenshot-2.11.0-macOS.dmg" class="alt-link" data-proxy="github">GitHub 下载</a>
+                                <a href="https://github.com/wangwingzero/hugescreenshot/releases" class="alt-link">所有版本</a>
+                            </div>
+                        </div>
+
+                        <a href="guide.html" class="alt-link" style="margin-top: 4px;">
+                            <svg style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                            </svg>
+                            使用说明
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 飞行工具箱 -->
+            <div class="product-card" data-animate="fade-up" data-delay="1">
+                <div class="product-icon flight">
+                    <!-- Plane Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
+                    </svg>
+                </div>
+                <div class="product-title">飞行工具箱</div>
+                <div class="product-platform">微信小程序</div>
+                <div class="product-desc">
+                    专为商业航线飞行员设计，离线优先。收录 31 国 ATC 录音、7400+ 机场、1400+ 份 CCAR 规章，驾驶舱内也能用。
+                </div>
+                <div class="product-features">
+                    <span class="feature-tag">ATC 录音</span>
+                    <span class="feature-tag">飞行计算器</span>
+                    <span class="feature-tag">机场数据库</span>
+                    <span class="feature-tag">CCAR 规章</span>
+                    <span class="feature-tag">离线可用</span>
+                </div>
+                <div class="product-action">
+                    <button class="action-btn secondary" onclick="showQR('flight')">
+                        扫码使用
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 历史时空图 -->
+            <div class="product-card" data-animate="fade-up" data-delay="2">
+                <div class="product-icon history">
+                    <!-- Map Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                        <line x1="8" y1="2" x2="8" y2="18"/>
+                        <line x1="16" y1="6" x2="16" y2="22"/>
+                    </svg>
+                </div>
+                <div class="product-title">历史时空图</div>
+                <div class="product-platform">微信小程序</div>
+                <div class="product-desc">
+                    创新的时空可视化历史学习工具。在地图上探索 27 个历史时期，支持中国历史和世界历史双视角，配有足迹打卡和学习统计。
+                </div>
+                <div class="product-features">
+                    <span class="feature-tag">交互地图</span>
+                    <span class="feature-tag">时间轴导航</span>
+                    <span class="feature-tag">学习笔记</span>
+                    <span class="feature-tag">足迹打卡</span>
+                    <span class="feature-tag">人物画廊</span>
+                </div>
+                <div class="product-action">
+                    <button class="action-btn secondary" onclick="showQR('history')">
+                        扫码使用
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer" data-animate="fade-up">
+            <nav class="footer-nav">
+                <a href="https://github.com/wangwingzero/hugescreenshot" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+                <span class="footer-divider">·</span>
+                <a onclick="showQR('contact')" class="footer-link">联系作者</a>
+            </nav>
+            <p class="footer-copyright">© 2024-2026 虎哥飞行空间. All rights reserved.</p>
+            <p class="footer-icp">
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">
+                    沪ICP备2025125704号-3
+                </a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- 二维码弹窗 -->
+    <div class="qr-modal" id="qrModal" onclick="hideQR(event)">
+        <div class="qr-modal-content" onclick="event.stopPropagation()">
+            <h3 id="qrTitle">扫码使用</h3>
+            <img id="qrImage" src="" alt="二维码">
+            <p id="qrDesc">微信扫一扫</p>
+            <button class="qr-close-btn" onclick="hideQR()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // Theme Manager - 主题切换管理
+        // Requirements: 2.1, 2.3, 2.5
+        // ========================================
+        var ThemeManager = {
+            current: 'light',
+            
+            // 初始化主题：检测 localStorage → 系统偏好 → 默认值
+            init: function() {
+                // Check localStorage first
+                try {
+                    var stored = localStorage.getItem('theme');
+                    if (stored && ['light', 'dark'].indexOf(stored) !== -1) {
+                        this.current = stored;
+                    } else {
+                        // Fall back to system preference
+                        this.current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    }
+                } catch (e) {
+                    // localStorage may be unavailable (private browsing, etc.)
+                    console.warn('localStorage unavailable, using system preference');
+                    this.current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                
+                this.apply();
+                
+                // Listen for system preference changes
+                var self = this;
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    try {
+                        if (!localStorage.getItem('theme')) {
+                            self.current = e.matches ? 'dark' : 'light';
+                            self.apply();
+                        }
+                    } catch (err) {
+                        // If localStorage is unavailable, always follow system preference
+                        self.current = e.matches ? 'dark' : 'light';
+                        self.apply();
+                    }
+                });
+                
+                // Bind click event to theme switcher
+                var switcher = document.getElementById('themeSwitcher');
+                if (switcher) {
+                    switcher.addEventListener('click', function() {
+                        self.toggle();
+                    });
+                }
+            },
+            
+            // 切换主题并保存到 localStorage
+            toggle: function() {
+                this.current = this.current === 'light' ? 'dark' : 'light';
+                try {
+                    localStorage.setItem('theme', this.current);
+                } catch (e) {
+                    console.warn('Unable to save theme preference to localStorage');
+                }
+                this.apply();
+            },
+            
+            // 设置 data-theme 属性
+            apply: function() {
+                document.documentElement.setAttribute('data-theme', this.current);
+            }
+        };
+
+        // ========================================
+        // Platform Switcher - 平台切换 + OS 自动检测
+        // ========================================
+        function switchPlatform(platform) {
+            // 切换标签样式
+            document.querySelectorAll('.platform-tab').forEach(function(tab) {
+                tab.classList.toggle('active', tab.getAttribute('data-platform') === platform);
+            });
+            // 切换内容
+            document.querySelectorAll('.platform-content').forEach(function(el) {
+                el.classList.toggle('active', el.id === 'platform-' + platform);
+            });
+        }
+
+        function detectOS() {
+            var ua = navigator.userAgent || navigator.platform || '';
+            if (/Mac|iPhone|iPad|iPod/i.test(ua)) return 'macos';
+            return 'windows'; // 默认 Windows
+        }
+
+        // Initialize theme on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            ThemeManager.init();
+            initScrollAnimations();
+            // 自动检测 OS 并切换到对应平台
+            var os = detectOS();
+            switchPlatform(os);
+        });
+
+        // ========================================
+        // Scroll Animation Observer - 滚动动画控制器
+        // Requirements: 6.5, 8.2
+        // ========================================
+        function initScrollAnimations() {
+            // Fallback: show all elements immediately if IntersectionObserver is not supported
+            if (!('IntersectionObserver' in window)) {
+                document.querySelectorAll('[data-animate]').forEach(function(el) {
+                    el.classList.add('animated');
+                });
+                return;
+            }
+            
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        var el = entry.target;
+                        var delay = el.getAttribute('data-delay') || 0;
+                        setTimeout(function() {
+                            el.classList.add('animated');
+                        }, delay * 100);
+                        observer.unobserve(el);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            document.querySelectorAll('[data-animate]').forEach(function(el) {
+                observer.observe(el);
+            });
+        }
+
+        // ========================================
+        // QR Modal - 二维码弹窗
+        // ========================================
+        var qrData = {
+            flight: {
+                title: '飞行工具箱',
+                image: 'flight-tools-qr.jpg',
+                desc: '微信扫一扫，打开小程序'
+            },
+            history: {
+                title: '历史时空图',
+                image: 'history-map-qr.jpg',
+                desc: '微信扫一扫，打开小程序'
+            },
+            contact: {
+                title: '联系作者',
+                image: 'QRcode.png',
+                desc: '微信扫一扫，添加好友'
+            }
+        };
+
+        function showQR(type) {
+            var data = qrData[type];
+            if (!data) return;
+            document.getElementById('qrTitle').textContent = data.title;
+            document.getElementById('qrImage').src = data.image;
+            document.getElementById('qrDesc').textContent = data.desc;
+            document.getElementById('qrModal').classList.add('show');
+        }
+
+        function hideQR(event) {
+            if (!event || event.target === document.getElementById('qrModal')) {
+                document.getElementById('qrModal').classList.remove('show');
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideQR();
+        });
+    </script>
+</body>
+</html>

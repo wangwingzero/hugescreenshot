@@ -3,9 +3,6 @@
 # =============================================================
 # 触发条件: 推送 v*.*.* 标签 或 手动触发
 # 流程: 版本验证 → 创建 Release → 构建 (Win + Mac) → 发布
-#
-# 需要的 Secrets:
-#   RELEASE_PAT - GitHub PAT，需要对 hugescreenshot-releases 仓库有 write 权限
 
 name: Build & Release
 
@@ -26,7 +23,6 @@ permissions:
 
 env:
   PYTHON_VERSION: '3.13'
-  PUBLIC_REPO: wangwingzero/hugescreenshot-releases
   PYTHONIOENCODING: utf-8
   PYTHONUTF8: 1
 
@@ -216,8 +212,8 @@ jobs:
       - name: List artifacts
         run: find artifacts -type f
 
-      # 发布到本仓库（源代码 Release）
-      - name: Create Source Release
+      # 发布 Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
@@ -225,29 +221,11 @@ jobs:
           draft: false
           prerelease: false
 
-      # 发布到 hugescreenshot-releases（用户下载 + 软件内自动更新）
-      - name: Publish to releases repo
-        uses: softprops/action-gh-release@v2
-        with:
-          repository: ${{ env.PUBLIC_REPO }}
-          tag_name: v${{ needs.prepare.outputs.version }}
-          name: "v${{ needs.prepare.outputs.version }}"
-          files: artifacts/**/*
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          token: ${{ secrets.RELEASE_PAT }}
-
-      # 同步版本号到公开仓库的 README 和 website
-      - name: Sync version to releases repo
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+      # 同步版本号到本仓库的 README 和 website
+      - name: Sync version to README and website
         run: |
           VERSION=${{ needs.prepare.outputs.version }}
-          echo "Syncing version v${VERSION} to releases repo..."
-
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ env.PUBLIC_REPO }}.git" releases-repo
-          cd releases-repo
+          echo "Syncing version v${VERSION}..."
 
           # 更新版本号
           for f in README.md website/index.html; do
@@ -262,6 +240,7 @@ jobs:
 
           # 同步 guide.html
           if [ -f scripts/readme_to_guide.py ]; then
+            pip install markdown
             python scripts/readme_to_guide.py || true
           fi
 
@@ -270,4 +249,4 @@ jobs:
           git add -A
           git diff --staged --quiet || git commit -m "v${VERSION}: 自动更新版本号和下载链接"
           git push origin main
-          echo "✅ Releases repo synced!"
+          echo "✅ Version synced!"

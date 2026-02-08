@@ -449,7 +449,7 @@ class TestUpdateServiceUnit:
         service = UpdateService()
         repo = service.get_github_repo()
         
-        assert repo == "wangwingzero/hugescreenshot-releases"
+        assert repo == "wangwingzero/hugescreenshot"
     
     def test_get_github_repo_from_config(self):
         """测试从配置获取 GitHub 仓库"""

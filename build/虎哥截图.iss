@@ -22,7 +22,7 @@
 #define MyAppName "虎哥截图"
 #define MyAppVersion "2.11.0"
 #define MyAppPublisher "虎哥截图"
-#define MyAppURL "https://github.com/wangwingzero/hugescreenshot-releases"
+#define MyAppURL "https://github.com/wangwingzero/hugescreenshot"
 #define MyAppExeName "虎哥截图.exe"
 
 [Setup]

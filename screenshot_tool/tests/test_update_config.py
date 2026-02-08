@@ -50,7 +50,7 @@ class TestUpdateConfigUnit:
         assert config.auto_download_enabled is True
         assert config.check_interval_hours == 24
         assert config.last_check_time == ""
-        assert config.github_repo == "wangwingzero/hugescreenshot-releases"
+        assert config.github_repo == "wangwingzero/hugescreenshot"
         assert config.use_proxy is True
         assert config.proxy_url == "https://gh-proxy.com/"
         assert config.skip_version == ""
@@ -81,7 +81,7 @@ class TestUpdateConfigUnit:
         assert config.auto_download_enabled is True
         assert config.check_interval_hours == 24
         assert config.last_check_time == ""
-        assert config.github_repo == "wangwingzero/hugescreenshot-releases"
+        assert config.github_repo == "wangwingzero/hugescreenshot"
         assert config.use_proxy is True
         assert config.proxy_url == "https://gh-proxy.com/"
         assert config.skip_version == ""
@@ -192,7 +192,7 @@ class TestAppConfigUpdateIntegration:
         
         assert config.update.auto_download_enabled is True
         assert config.update.check_interval_hours == 24
-        assert config.update.github_repo == "wangwingzero/hugescreenshot-releases"
+        assert config.update.github_repo == "wangwingzero/hugescreenshot"
         assert config.update.use_proxy is True
         assert config.update.proxy_url == "https://gh-proxy.com/"
     
@@ -270,7 +270,7 @@ class TestConfigManagerUpdateMethods:
         manager = ConfigManager()
         manager.load()
         
-        assert manager.get_github_repo() == "wangwingzero/hugescreenshot-releases"
+        assert manager.get_github_repo() == "wangwingzero/hugescreenshot"
     
     def test_get_use_proxy(self):
         """测试获取是否使用代理"""
@@ -349,7 +349,7 @@ class TestUpdateConfigProperties:
             auto_download_enabled=auto_download_enabled,
             check_interval_hours=check_interval_hours,
             last_check_time=last_check_time,
-            github_repo="wangwingzero/hugescreenshot-releases",
+            github_repo="wangwingzero/hugescreenshot",
             use_proxy=True,
             proxy_url="https://gh-proxy.com/",
             skip_version=skip_version,

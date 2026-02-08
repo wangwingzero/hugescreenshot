@@ -1456,7 +1456,7 @@ class UpdateService(QObject):
         """获取 GitHub 仓库地址"""
         if self._config_manager:
             return self._config_manager.get_github_repo()
-        return "wangwingzero/hugescreenshot-releases"
+        return "wangwingzero/hugescreenshot"
     
     def get_use_proxy(self) -> bool:
         """获取是否使用 GitHub 加速代理"""

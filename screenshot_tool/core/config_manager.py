@@ -232,7 +232,7 @@ class UpdateConfig:
     auto_download_enabled: bool = True   # 自动后台下载新版本，默认开启
     check_interval_hours: int = 24       # 检查间隔（小时），默认 24 小时
     last_check_time: str = ""            # 上次检查时间 (ISO format: 2026-01-07T10:00:00)
-    github_repo: str = "wangwingzero/hugescreenshot-releases"  # GitHub 仓库地址（公开仓库，仅用于发布）
+    github_repo: str = "wangwingzero/hugescreenshot"  # GitHub 仓库地址
     use_proxy: bool = True               # 是否使用 GitHub 加速代理，默认开启
     proxy_url: str = "https://ghproxy.net/"  # GitHub 加速代理地址
     skip_version: str = ""               # 跳过的版本（用户选择"跳过此版本"时记录）
@@ -262,7 +262,7 @@ class UpdateConfig:
         if self.last_check_time is None:
             self.last_check_time = ""
         if self.github_repo is None:
-            self.github_repo = "wangwingzero/hugescreenshot-releases"
+            self.github_repo = "wangwingzero/hugescreenshot"
         if not isinstance(self.use_proxy, bool):
             self.use_proxy = True
         # 迁移旧的代理地址到新地址
@@ -2170,7 +2170,7 @@ class AppConfig:
             auto_download_enabled=update.get("auto_download_enabled", True),
             check_interval_hours=update.get("check_interval_hours", 24),
             last_check_time=update.get("last_check_time", ""),
-            github_repo=update.get("github_repo", "wangwingzero/hugescreenshot-releases"),
+            github_repo=update.get("github_repo", "wangwingzero/hugescreenshot"),
             use_proxy=update.get("use_proxy", True),
             proxy_url=update.get("proxy_url", "https://ghproxy.net/"),
             skip_version=update.get("skip_version", ""),

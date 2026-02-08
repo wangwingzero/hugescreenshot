@@ -25,6 +25,6 @@
 - 网络功能仅用于检查更新和云端 OCR（可选）
 
 如有问题，请访问：
-https://github.com/wangwingzero/hugescreenshot-releases
+https://github.com/wangwingzero/hugescreenshot
 
 感谢您使用虎哥截图！
