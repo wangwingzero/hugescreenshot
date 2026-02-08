@@ -47,3 +47,6 @@ state_*.json
 # Environment
 .env
 .env.local
+
+# SSH Keys
+*.pem
