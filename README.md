@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.26-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.27-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/Tauri-2.0-24C8D8.svg" alt="Tauri">
   <img src="https://img.shields.io/badge/Rust-stable-DEA584.svg" alt="Rust">
   <img src="https://img.shields.io/badge/Vue-3.5-4FC08D.svg" alt="Vue">
@@ -46,7 +46,7 @@
 
 ## 最新 Release
 
-当前版本：`0.1.26`
+当前版本：`0.1.27`
 
 GitHub Actions 的 `Build & Release` 工作流会构建 Windows NSIS 安装包并生成 Release 草稿。手动触发时可以直接传入版本号：
 

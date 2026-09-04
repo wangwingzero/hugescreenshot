@@ -1,6 +1,6 @@
 [package]
 name = "hugescreenshot-tauri"
-version = "0.1.26"
+version = "0.1.27"
 description = "虎哥截图 - Windows 桌面截图工具"
 authors = ["HuGe"]
 edition = "2021"

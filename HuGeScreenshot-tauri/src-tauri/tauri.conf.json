@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "虎哥截图",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "identifier": "com.wangh.hugescreenshot",
   "build": {
     "beforeDevCommand": "npm run dev",
