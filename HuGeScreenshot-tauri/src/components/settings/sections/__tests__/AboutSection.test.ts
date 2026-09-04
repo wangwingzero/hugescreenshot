@@ -249,7 +249,7 @@ describe('AboutSection Component Tests', () => {
 
       const link = wrapper.find('.manual-download-link')
       expect(link.exists()).toBe(true)
-      expect(link.attributes('href')).toBe('https://downloads.example.com')
+      expect(link.attributes('href')).toBe('https://hugescreenshot-download.031986.xyz')
       wrapper.unmount()
     })
 
@@ -262,7 +262,7 @@ describe('AboutSection Component Tests', () => {
       await link.trigger('click')
       await flushPromises()
 
-      expect(open).toHaveBeenCalledWith('https://downloads.example.com')
+      expect(open).toHaveBeenCalledWith('https://hugescreenshot-download.031986.xyz')
       wrapper.unmount()
     })
 

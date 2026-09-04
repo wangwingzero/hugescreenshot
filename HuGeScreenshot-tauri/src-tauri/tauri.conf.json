@@ -28,7 +28,7 @@
         "installerHooks": "./windows/nsis-hooks.nsh"
       }
     },
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": true,
     "resources": [
       "openvino/*.dll",
       "openvino/cache.json",
@@ -71,8 +71,8 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://downloads.example.com/latest.json",
-        "https://downloads.example.com/latest.json"
+        "https://hugescreenshot-download.031986.xyz/latest.json",
+        "https://hugescreenshot-dl.hudawang.cn/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM3RUM5MTU3NDFENjE2MEQKUldRTkZ0WkJWNUhzTjZGQmdQeXhhOE50TmpLQzRnNUFZTXdjemxSSFZsSlV6TEFJaFI0MmNPSUUK",
       "windows": {

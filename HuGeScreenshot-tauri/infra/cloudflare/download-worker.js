@@ -40,7 +40,17 @@ export default {
     }
 
     const r2Request = await createR2Request(request, env);
-    const r2Response = await fetch(r2Request);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    let r2Response;
+    try {
+      r2Response = await fetch(r2Request, { signal: controller.signal });
+    } catch (error) {
+      clearTimeout(timer);
+      return new Response(`R2 upstream error: ${error.message || error}`, { status: 502 });
+    } finally {
+      clearTimeout(timer);
+    }
     const headers = corsHeaders(new Headers(r2Response.headers));
 
     headers.set("x-hugescreenshot-accelerated", "cloudflare-r2-worker");

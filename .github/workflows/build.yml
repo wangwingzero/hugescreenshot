@@ -28,7 +28,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: HuGeScreenshot-tauri/package-lock.json
 
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -43,10 +42,10 @@ jobs:
           @"
           DEEPLX_URL=${{ secrets.DEEPLX_URL }}
           DEEPLX_URL_FALLBACK=${{ secrets.DEEPLX_URL_FALLBACK }}
-          GITHUB_PAT=${{ secrets.GH_PAT }}
           TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           "@ | Set-Content -Path ".env" -Encoding UTF8
+
       - name: Install frontend dependencies
         shell: pwsh
         working-directory: HuGeScreenshot-tauri
@@ -65,6 +64,14 @@ jobs:
           if (-not (Test-Path $modulePath)) {
             npm install @tauri-apps/cli-win32-x64-msvc --no-save --os=win32 --cpu=x64
           }
+
+      - name: Install AWS CLI
+        shell: pwsh
+        run: |
+          if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
+            choco install awscli --yes --no-progress
+          }
+          aws --version
 
       - name: Build Tauri app
         shell: pwsh
@@ -113,6 +120,53 @@ jobs:
           }
           if ($count -eq 0) { throw "No artifacts found" }
           "artifact_dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Generate updater manifest
+        shell: pwsh
+        env:
+          RELEASE_BASE_URL: ${{ secrets.R2_PUBLIC_URL }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $exe = Get-ChildItem build-artifacts -Filter "*.exe" -File | Where-Object { $_.Name -notlike "*.nsis.zip*" } | Select-Object -First 1
+          $sig = Get-ChildItem build-artifacts -Filter "*.exe.sig" -File | Where-Object { $_.Name -notlike "*.nsis.zip*" } | Select-Object -First 1
+          if (-not $exe -or -not $sig) { throw "Missing installer or updater signature" }
+          $signature = (Get-Content $sig.FullName -Raw).Trim()
+          $encodedName = [Uri]::EscapeDataString($exe.Name)
+          $latestJson = [ordered]@{
+            version = $env:RELEASE_VERSION
+            notes = "HuGeScreenshot $env:RELEASE_VERSION"
+            pub_date = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            platforms = @{
+              "windows-x86_64" = @{
+                signature = $signature
+                url = "$env:RELEASE_BASE_URL/$env:RELEASE_VERSION/$encodedName"
+              }
+            }
+          }
+          $latestJson | ConvertTo-Json -Depth 5 | Set-Content build-artifacts/latest.json -Encoding UTF8
+
+      - name: Upload update artifacts to R2
+        shell: pwsh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          aws configure set default.region us-east-1
+          $versionDir = $env:RELEASE_VERSION
+          Get-ChildItem build-artifacts -File | Where-Object { $_.Name -ne "latest.json" } | ForEach-Object {
+            $contentType = switch -Wildcard ($_.Name) {
+              "*.sig" { "text/plain; charset=utf-8" }
+              "*.zip" { "application/zip" }
+              "*.exe" { "application/octet-stream" }
+              default { "application/octet-stream" }
+            }
+            aws s3 cp "$($_.FullName)" "s3://$env:R2_BUCKET/$versionDir/$($_.Name)" --content-type $contentType --cache-control "public, max-age=31536000, immutable" --only-show-errors
+          }
+          aws s3 cp build-artifacts/latest.json "s3://$env:R2_BUCKET/latest.json" --content-type "application/json; charset=utf-8" --cache-control "no-store, no-cache, must-revalidate, max-age=0" --only-show-errors
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
