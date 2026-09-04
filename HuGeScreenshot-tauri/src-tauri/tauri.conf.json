@@ -28,7 +28,7 @@
         "installerHooks": "./windows/nsis-hooks.nsh"
       }
     },
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "resources": [
       "openvino/*.dll",
       "openvino/cache.json",
