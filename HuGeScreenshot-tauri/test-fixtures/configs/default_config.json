@@ -1,0 +1,37 @@
+{
+  "general": {
+    "language": "zh-CN",
+    "theme": "system",
+    "autoStart": false,
+    "minimizeToTray": true
+  },
+  "hotkeys": {
+    "screenshot": "Ctrl+Shift+A",
+    "ocr": "Ctrl+Shift+O",
+    "recording": "Ctrl+Shift+R",
+    "pin": "Ctrl+Shift+P"
+  },
+  "screenshot": {
+    "saveLocation": "",
+    "defaultFormat": "png",
+    "jpgQuality": 90,
+    "includeMouseCursor": false
+  },
+  "annotation": {
+    "defaultStrokeColor": "#FF0000",
+    "defaultStrokeWidth": 2,
+    "defaultFontSize": 16,
+    "defaultFontFamily": "Microsoft YaHei"
+  },
+  "ocr": {
+    "defaultLanguage": "auto",
+    "autoTranslate": false,
+    "translateProvider": "google",
+    "translateTargetLang": "zh"
+  },
+  "anki": {
+    "defaultDeck": "Default",
+    "defaultNoteType": "Basic",
+    "autoAddToAnki": false
+  }
+}

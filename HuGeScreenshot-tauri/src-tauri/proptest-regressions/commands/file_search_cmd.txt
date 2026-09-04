@@ -1,0 +1,11 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 170f2fc4ab122b3379cabd42feaafc0333210c1008907fa2763bbafefa470e0f # shrinks to error = ServiceNotRunning, context = ErrorContext { operation: "search", details: None }
+cc a35598c13311ce54519b8fd5d812f5aeca1068b76164a87b5b443cd48a1c4cae # shrinks to error = ServiceNotRunning, context = ErrorContext { operation: "search", details: None }
+cc 2b56851ba1c7be02602dadb9e9af6a2793eb14cd1dfaf7f5e69f463715c5780c # shrinks to error = ServiceNotRunning, context = ErrorContext { operation: "search", details: None }
+cc abedcb9455067a72cff0c8bb3a123625239b944985fa778d8107b456f9e81257 # shrinks to error = ServiceNotRunning, details = "test error"
+cc 0a369b3c760597d0165ac1ec1055abe0e0f40c87fc8f5e424f145c21102cd7b8 # shrinks to error = ServiceNotRunning, context = ErrorContext { operation: "search", details: None }

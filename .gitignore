@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.env
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.coverage
+*.cover
+screenshot_tool/tests/test_output/
+
+# Build（打包产物太大，不上传）
+dist/
+*.egg-info/
+
+# Logs（日志文件不上传）
+*.log
+日志/
+AMD电脑日志/
+
+# 用户数据目录（不上传）
+截图/
+临时截图/
+录屏/
+规章/
+
+# 安装包/可执行文件（太大，不上传）
+bin/
+
+# 敏感信息（密钥、token 等）
+钥匙/
+
+# Temporary files
+*.tmp
+*.temp
+state_*.json
+.playwright-mcp/
+/tmp/
+/用户日志/
+/HuGeScreenshot-tauri/release-logs/
+/.codex/
+/000后续运维开发文档/
+/word排版/
+/build/
+
+# 打包产物（PyInstaller 中间文件）
+build/虎哥截图*/
+build/build/
+build/dist/
+build/installer/
+
+# Git worktrees
+.worktrees/
+.ace-tool/
+.wrangler/
+
+# Local AI agent metadata
+.claude/
+nul
+build/worker/node_modules/
+build/worker/package*.json
+build/_r2_upload/
+
+# Generated Windows installer dependency
+HuGeScreenshot-tauri/src-tauri/resources/vc_redist.x64.exe
+HuGeScreenshot-tauri/src-tauri/resources/vc_redist.x64.exe.tmp

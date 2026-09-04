@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>识别结果</title>
+    <script>
+      (function() {
+        var stored = localStorage.getItem('huge-theme');
+        var theme = 'light';
+        if (stored === 'dark') { theme = 'dark'; }
+        else if (stored === 'light') { theme = 'light'; }
+        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { theme = 'dark'; }
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <style>
+      /* 防止白屏闪烁 - 根据主题动态选择背景色 */
+      html, body {
+        background-color: #1c1c1e;
+        margin: 0;
+        padding: 0;
+      }
+      [data-theme='light'] body,
+      [data-theme='light'] {
+        background-color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/ocr-result-main.ts"></script>
+  </body>
+</html>

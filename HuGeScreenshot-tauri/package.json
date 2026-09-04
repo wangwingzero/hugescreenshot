@@ -1,0 +1,46 @@
+{
+  "name": "hugescreenshot-tauri",
+  "private": true,
+  "version": "0.1.26",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/run-vite-dev.mjs",
+    "prepare:windows-runtime": "node scripts/prepare-windows-runtime.mjs",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "release:local": "powershell -ExecutionPolicy Bypass -File scripts/build-release-local.ps1",
+    "release:r2": "powershell -ExecutionPolicy Bypass -File scripts/publish-release-r2-local.ps1",
+    "release:server": "powershell -ExecutionPolicy Bypass -File scripts/publish-release-server-local.ps1",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check:theme-colors": "powershell -ExecutionPolicy Bypass -File scripts/check-theme-hardcoded-text.ps1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-clipboard-manager": "^2",
+    "@tauri-apps/plugin-dialog": "^2",
+    "@tauri-apps/plugin-fs": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-process": "^2",
+    "@tauri-apps/plugin-shell": "^2.3.4",
+    "@tauri-apps/plugin-updater": "^2",
+    "lucide-vue-next": "^0.563.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.13",
+    "vue-i18n": "^9.14.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.6",
+    "fast-check": "^4.5.3",
+    "jsdom": "^27.4.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.3",
+    "vitest": "^4.0.18",
+    "vue-tsc": "^2.1.10"
+  }
+}

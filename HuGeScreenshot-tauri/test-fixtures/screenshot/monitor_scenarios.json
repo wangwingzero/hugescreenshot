@@ -1,0 +1,250 @@
+{
+  "scenarios": [
+    {
+      "id": "single_monitor_1080p",
+      "name": "单显示器 1080p",
+      "description": "标准单显示器配置",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": true
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 1,
+        "totalWidth": 1920,
+        "totalHeight": 1080
+      }
+    },
+    {
+      "id": "single_monitor_4k",
+      "name": "单显示器 4K",
+      "description": "4K 显示器，150% 缩放",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 3840,
+          "height": 2160,
+          "dpr": 1.5,
+          "isPrimary": true
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 1,
+        "logicalWidth": 2560,
+        "logicalHeight": 1440
+      }
+    },
+    {
+      "id": "dual_monitor_horizontal",
+      "name": "双显示器水平排列",
+      "description": "主屏在左，副屏在右",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": true
+        },
+        {
+          "id": 1,
+          "x": 1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 2,
+        "totalWidth": 3840,
+        "totalHeight": 1080
+      }
+    },
+    {
+      "id": "dual_monitor_left_secondary",
+      "name": "双显示器副屏在左",
+      "description": "副屏在左（负坐标），主屏在右",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": true
+        },
+        {
+          "id": 1,
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 2,
+        "minX": -1920,
+        "maxX": 1920,
+        "note": "副屏坐标为负值"
+      }
+    },
+    {
+      "id": "dual_monitor_vertical",
+      "name": "双显示器垂直排列",
+      "description": "主屏在上，副屏在下",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": true
+        },
+        {
+          "id": 1,
+          "x": 0,
+          "y": 1080,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 2,
+        "totalHeight": 2160
+      }
+    },
+    {
+      "id": "dual_monitor_mixed_dpr",
+      "name": "双显示器不同 DPR",
+      "description": "主屏 4K 150%，副屏 1080p 100%",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 3840,
+          "height": 2160,
+          "dpr": 1.5,
+          "isPrimary": true
+        },
+        {
+          "id": 1,
+          "x": 2560,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false,
+          "note": "副屏 x 坐标使用主屏逻辑宽度 3840/1.5=2560"
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 2,
+        "note": "窗口跨显示器时需要处理 DPR 切换"
+      }
+    },
+    {
+      "id": "triple_monitor",
+      "name": "三显示器配置",
+      "description": "中间主屏，两侧副屏",
+      "monitors": [
+        {
+          "id": 0,
+          "x": -1920,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false
+        },
+        {
+          "id": 1,
+          "x": 0,
+          "y": 0,
+          "width": 2560,
+          "height": 1440,
+          "dpr": 1.0,
+          "isPrimary": true
+        },
+        {
+          "id": 2,
+          "x": 2560,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "dpr": 1.0,
+          "isPrimary": false
+        }
+      ],
+      "expectedBehavior": {
+        "overlayCount": 3,
+        "totalWidth": 6400
+      }
+    },
+    {
+      "id": "high_dpi_200",
+      "name": "高 DPI 200%",
+      "description": "Surface 设备常见配置",
+      "monitors": [
+        {
+          "id": 0,
+          "x": 0,
+          "y": 0,
+          "width": 2736,
+          "height": 1824,
+          "dpr": 2.0,
+          "isPrimary": true
+        }
+      ],
+      "expectedBehavior": {
+        "logicalWidth": 1368,
+        "logicalHeight": 912
+      }
+    }
+  ],
+  "coordinateConversionTests": [
+    {
+      "name": "逻辑坐标转物理坐标",
+      "dpr": 1.5,
+      "logicalX": 100,
+      "logicalY": 200,
+      "expectedPhysicalX": 150,
+      "expectedPhysicalY": 300
+    },
+    {
+      "name": "物理坐标转逻辑坐标",
+      "dpr": 2.0,
+      "physicalX": 400,
+      "physicalY": 600,
+      "expectedLogicalX": 200,
+      "expectedLogicalY": 300
+    },
+    {
+      "name": "跨显示器坐标（负值）",
+      "dpr": 1.0,
+      "physicalX": -500,
+      "physicalY": 100,
+      "expectedLogicalX": -500,
+      "expectedLogicalY": 100
+    }
+  ]
+}

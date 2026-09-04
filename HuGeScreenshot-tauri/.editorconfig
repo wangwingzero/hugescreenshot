@@ -1,0 +1,44 @@
+# EditorConfig - 统一跨编辑器配置
+# https://editorconfig.org
+
+root = true
+
+# 全局默认
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Rust - 4 空格缩进
+[*.rs]
+indent_style = space
+indent_size = 4
+
+# Vue/TypeScript/JavaScript - 2 空格缩进
+[*.{vue,ts,tsx,js,jsx,mjs,cjs}]
+indent_style = space
+indent_size = 2
+
+# JSON/YAML - 2 空格缩进
+[*.{json,yaml,yml,toml}]
+indent_style = space
+indent_size = 2
+
+# HTML/CSS - 2 空格缩进
+[*.{html,css,scss,less}]
+indent_style = space
+indent_size = 2
+
+# Python - 4 空格缩进
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Markdown - 保留尾随空格（用于换行）
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefile - 必须使用 Tab
+[Makefile]
+indent_style = tab

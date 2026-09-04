@@ -1,0 +1,297 @@
+{
+  "shapes": [
+    {
+      "id": "rect_basic",
+      "type": "rectangle",
+      "name": "基础矩形",
+      "startPoint": { "x": 100, "y": 100 },
+      "endPoint": { "x": 300, "y": 200 },
+      "style": {
+        "strokeColor": "#FF0000",
+        "strokeWidth": 2,
+        "fillColor": null
+      },
+      "expectedBounds": {
+        "x": 100,
+        "y": 100,
+        "width": 200,
+        "height": 100
+      }
+    },
+    {
+      "id": "rect_filled",
+      "type": "rectangle",
+      "name": "填充矩形",
+      "startPoint": { "x": 50, "y": 50 },
+      "endPoint": { "x": 150, "y": 150 },
+      "style": {
+        "strokeColor": "#0066CC",
+        "strokeWidth": 3,
+        "fillColor": "rgba(0, 102, 204, 0.3)"
+      }
+    },
+    {
+      "id": "ellipse_basic",
+      "type": "ellipse",
+      "name": "基础椭圆",
+      "startPoint": { "x": 200, "y": 200 },
+      "endPoint": { "x": 400, "y": 300 },
+      "style": {
+        "strokeColor": "#00CC00",
+        "strokeWidth": 2,
+        "fillColor": null
+      },
+      "expectedBounds": {
+        "x": 200,
+        "y": 200,
+        "width": 200,
+        "height": 100
+      }
+    },
+    {
+      "id": "ellipse_circle",
+      "type": "ellipse",
+      "name": "正圆（Shift）",
+      "startPoint": { "x": 100, "y": 100 },
+      "endPoint": { "x": 200, "y": 200 },
+      "shiftKey": true,
+      "style": {
+        "strokeColor": "#FF6600",
+        "strokeWidth": 2
+      },
+      "note": "按住 Shift 画正圆"
+    },
+    {
+      "id": "arrow_right",
+      "type": "arrow",
+      "name": "向右箭头",
+      "startPoint": { "x": 100, "y": 150 },
+      "endPoint": { "x": 300, "y": 150 },
+      "style": {
+        "strokeColor": "#CC0000",
+        "strokeWidth": 3
+      }
+    },
+    {
+      "id": "arrow_diagonal",
+      "type": "arrow",
+      "name": "斜向箭头",
+      "startPoint": { "x": 50, "y": 50 },
+      "endPoint": { "x": 200, "y": 200 },
+      "style": {
+        "strokeColor": "#0000CC",
+        "strokeWidth": 4
+      }
+    },
+    {
+      "id": "line_horizontal",
+      "type": "line",
+      "name": "水平直线",
+      "startPoint": { "x": 0, "y": 100 },
+      "endPoint": { "x": 400, "y": 100 },
+      "style": {
+        "strokeColor": "#333333",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "line_vertical",
+      "type": "line",
+      "name": "垂直直线",
+      "startPoint": { "x": 200, "y": 0 },
+      "endPoint": { "x": 200, "y": 300 },
+      "style": {
+        "strokeColor": "#333333",
+        "strokeWidth": 2
+      }
+    }
+  ],
+  "texts": [
+    {
+      "id": "text_english",
+      "type": "text",
+      "name": "英文文字",
+      "position": { "x": 100, "y": 100 },
+      "content": "Hello, World!",
+      "style": {
+        "fontFamily": "Arial",
+        "fontSize": 24,
+        "fontColor": "#000000",
+        "bold": false,
+        "italic": false
+      }
+    },
+    {
+      "id": "text_chinese",
+      "type": "text",
+      "name": "中文文字",
+      "position": { "x": 100, "y": 150 },
+      "content": "你好，世界！",
+      "style": {
+        "fontFamily": "Microsoft YaHei",
+        "fontSize": 24,
+        "fontColor": "#CC0000",
+        "bold": true,
+        "italic": false
+      }
+    },
+    {
+      "id": "text_multiline",
+      "type": "text",
+      "name": "多行文字",
+      "position": { "x": 50, "y": 50 },
+      "content": "第一行\n第二行\n第三行",
+      "style": {
+        "fontFamily": "SimHei",
+        "fontSize": 18,
+        "fontColor": "#333333"
+      }
+    },
+    {
+      "id": "text_styled",
+      "type": "text",
+      "name": "样式文字",
+      "position": { "x": 100, "y": 200 },
+      "content": "Bold & Italic",
+      "style": {
+        "fontFamily": "Arial",
+        "fontSize": 20,
+        "fontColor": "#0066CC",
+        "bold": true,
+        "italic": true
+      }
+    }
+  ],
+  "privacy": [
+    {
+      "id": "mosaic_basic",
+      "type": "mosaic",
+      "name": "基础马赛克",
+      "region": {
+        "x": 100,
+        "y": 100,
+        "width": 200,
+        "height": 100
+      },
+      "config": {
+        "blockSize": 10
+      }
+    },
+    {
+      "id": "mosaic_fine",
+      "type": "mosaic",
+      "name": "细粒度马赛克",
+      "region": {
+        "x": 50,
+        "y": 50,
+        "width": 150,
+        "height": 80
+      },
+      "config": {
+        "blockSize": 5
+      }
+    },
+    {
+      "id": "mosaic_coarse",
+      "type": "mosaic",
+      "name": "粗粒度马赛克",
+      "region": {
+        "x": 200,
+        "y": 200,
+        "width": 300,
+        "height": 150
+      },
+      "config": {
+        "blockSize": 20
+      }
+    },
+    {
+      "id": "blur_basic",
+      "type": "blur",
+      "name": "基础模糊",
+      "region": {
+        "x": 100,
+        "y": 100,
+        "width": 200,
+        "height": 100
+      },
+      "config": {
+        "radius": 10
+      }
+    },
+    {
+      "id": "blur_light",
+      "type": "blur",
+      "name": "轻度模糊",
+      "region": {
+        "x": 50,
+        "y": 50,
+        "width": 150,
+        "height": 80
+      },
+      "config": {
+        "radius": 5
+      }
+    },
+    {
+      "id": "blur_heavy",
+      "type": "blur",
+      "name": "重度模糊",
+      "region": {
+        "x": 200,
+        "y": 200,
+        "width": 300,
+        "height": 150
+      },
+      "config": {
+        "radius": 20
+      }
+    }
+  ],
+  "undoRedoSequence": [
+    {
+      "step": 1,
+      "action": "draw",
+      "shape": "rectangle",
+      "stackSize": 1
+    },
+    {
+      "step": 2,
+      "action": "draw",
+      "shape": "arrow",
+      "stackSize": 2
+    },
+    {
+      "step": 3,
+      "action": "draw",
+      "shape": "text",
+      "stackSize": 3
+    },
+    {
+      "step": 4,
+      "action": "undo",
+      "stackSize": 2,
+      "redoStackSize": 1
+    },
+    {
+      "step": 5,
+      "action": "undo",
+      "stackSize": 1,
+      "redoStackSize": 2
+    },
+    {
+      "step": 6,
+      "action": "redo",
+      "stackSize": 2,
+      "redoStackSize": 1
+    },
+    {
+      "step": 7,
+      "action": "draw",
+      "shape": "ellipse",
+      "stackSize": 3,
+      "redoStackSize": 0,
+      "note": "新绘制清空 redo 栈"
+    }
+  ]
+}

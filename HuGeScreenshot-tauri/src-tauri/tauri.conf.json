@@ -1,0 +1,83 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "虎哥截图",
+  "version": "0.1.26",
+  "identifier": "com.wangh.hugescreenshot",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1425",
+    "beforeBuildCommand": "npm run prepare:windows-runtime && npm run build",
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "both",
+        "installerHooks": "./windows/nsis-hooks.nsh"
+      }
+    },
+    "createUpdaterArtifacts": true,
+    "resources": [
+      "openvino/*.dll",
+      "openvino/cache.json",
+      "pdfium/pdfium.dll",
+      "resources/*"
+    ]
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "虎哥截图",
+        "width": 800,
+        "height": 600,
+        "center": true,
+        "resizable": true,
+        "visible": true,
+        "focus": true,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost https://asset.localhost data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPCACHE/**",
+          "$RESOURCE/**",
+          "$APPDATA/**",
+          "$TEMP/**",
+          "$PICTURE/**",
+          "$DESKTOP/**",
+          "$DOWNLOAD/**",
+          "$DOCUMENT/**",
+          "$HOME/**"
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://downloads.example.com/latest.json",
+        "https://downloads.example.com/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM3RUM5MTU3NDFENjE2MEQKUldRTkZ0WkJWNUhzTjZGQmdQeXhhOE50TmpLQzRnNUFZTXdjemxSSFZsSlV6TEFJaFI0MmNPSUUK",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

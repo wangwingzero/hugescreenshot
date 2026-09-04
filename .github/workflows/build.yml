@@ -1,0 +1,132 @@
+name: Build & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 0.1.3), leave empty to use package.json"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  PRODUCT_NAME: HuGeScreenshot
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: HuGeScreenshot-tauri/package-lock.json
+
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: HuGeScreenshot-tauri/src-tauri -> target
+
+      - name: Write .env file
+        shell: pwsh
+        run: |
+          @"
+          DEEPLX_URL=${{ secrets.DEEPLX_URL }}
+          DEEPLX_URL_FALLBACK=${{ secrets.DEEPLX_URL_FALLBACK }}
+          GITHUB_PAT=${{ secrets.GH_PAT }}
+          TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          "@ | Set-Content -Path ".env" -Encoding UTF8
+      - name: Install frontend dependencies
+        shell: pwsh
+        working-directory: HuGeScreenshot-tauri
+        run: npm ci
+
+      - name: Prepare Windows runtime
+        shell: pwsh
+        working-directory: HuGeScreenshot-tauri
+        run: npm run prepare:windows-runtime
+
+      - name: Fix Tauri Windows native binding
+        shell: pwsh
+        working-directory: HuGeScreenshot-tauri
+        run: |
+          $modulePath = "node_modules/@tauri-apps/cli-win32-x64-msvc"
+          if (-not (Test-Path $modulePath)) {
+            npm install @tauri-apps/cli-win32-x64-msvc --no-save --os=win32 --cpu=x64
+          }
+
+      - name: Build Tauri app
+        shell: pwsh
+        working-directory: HuGeScreenshot-tauri
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          $configJson = @{ productName = $env:PRODUCT_NAME } | ConvertTo-Json -Compress
+          $tempConfig = Join-Path $env:TEMP "tauri-build-config.json"
+          Set-Content -Path $tempConfig -Value $configJson -Encoding UTF8
+          npx tauri build --config $tempConfig
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ inputs.version }}") {
+            $ver = "${{ inputs.version }}"
+          } else {
+            $pkg = Get-Content "HuGeScreenshot-tauri/package.json" -Raw | ConvertFrom-Json
+            $ver = $pkg.version
+          }
+          if (-not $ver.StartsWith("v")) { $ver = "v$ver" }
+          Write-Host "Version: $ver"
+          "version=$ver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Collect artifacts
+        id: artifacts
+        shell: pwsh
+        run: |
+          $bundleDir = "HuGeScreenshot-tauri/src-tauri/target/release/bundle/nsis"
+          if (-not (Test-Path $bundleDir)) {
+            throw "NSIS bundle directory not found: $bundleDir"
+          }
+          $outDir = "build-artifacts"
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          $patterns = @("*.exe", "*.exe.sig", "*.nsis.zip", "*.nsis.zip.sig")
+          $count = 0
+          foreach ($p in $patterns) {
+            Get-ChildItem -Path $bundleDir -Filter $p -File | ForEach-Object {
+              Copy-Item $_.FullName $outDir
+              Write-Host "Collected: $($_.Name) ($([math]::Round($_.Length / 1MB, 2)) MB)"
+              $count++
+            }
+          }
+          if ($count -eq 0) { throw "No artifacts found" }
+          "artifact_dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-${{ steps.version.outputs.version }}
+          path: build-artifacts/
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: ${{ env.PRODUCT_NAME }} ${{ steps.version.outputs.version }}
+          draft: true
+          files: build-artifacts/*
+          generate_release_notes: true

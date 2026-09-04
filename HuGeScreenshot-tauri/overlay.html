@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>截图覆盖</title>
+    <style>
+      /* 关键：确保透明背景 */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: transparent !important;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: "Microsoft YaHei", sans-serif;
+        outline: none;
+      }
+
+      /* 确保可聚焦元素不显示焦点轮廓 */
+      *:focus {
+        outline: none;
+      }
+
+      #overlay-app {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        position: relative;
+      }
+
+      /* 全屏截图背景（冻结屏幕） */
+      #screenshot-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        pointer-events: none;
+        display: none; /* 初始隐藏，等截图加载完成后显示 */
+      }
+
+      /* 半透明遮罩 */
+      .overlay-mask {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        cursor: crosshair;
+        z-index: 1;
+      }
+
+      /* 选区矩形 - 显示截图内容，周围是半透明遮罩 */
+      .selection-rect {
+        position: fixed;
+        border: 2px solid #1890ff;
+        background-color: transparent;
+        pointer-events: none;
+        z-index: 2;
+        /* 使用 box-shadow 创建周围的半透明遮罩效果 */
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+      }
+
+      /* 选区缩放手柄（仅用于视觉提示） */
+      .selection-handle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #ffffff;
+        border: 1px solid #1890ff;
+        border-radius: 2px;
+        box-sizing: border-box;
+        pointer-events: none;
+      }
+
+      .selection-handle-nw { left: -4px; top: -4px; }
+      .selection-handle-n  { left: 50%; top: -4px; transform: translateX(-50%); }
+      .selection-handle-ne { right: -4px; top: -4px; }
+      .selection-handle-e  { right: -4px; top: 50%; transform: translateY(-50%); }
+      .selection-handle-se { right: -4px; bottom: -4px; }
+      .selection-handle-s  { left: 50%; bottom: -4px; transform: translateX(-50%); }
+      .selection-handle-sw { left: -4px; bottom: -4px; }
+      .selection-handle-w  { left: -4px; top: 50%; transform: translateY(-50%); }
+
+      /* 窗口探测高亮框（Snipaste 风格：蓝色边框，无填充） */
+      .window-highlight {
+        position: fixed;
+        border: 2px solid #1890ff;
+        background-color: transparent;
+        pointer-events: none;
+        z-index: 10;
+        box-sizing: border-box;
+      }
+
+      /* 尺寸标签 */
+      .size-label {
+        position: fixed;
+        background-color: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-family: 'Consolas', 'Monaco', monospace;
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      /* 绘图 Canvas */
+      .drawing-canvas {
+        position: fixed;
+        pointer-events: none;
+        z-index: 50;
+      }
+
+      /* 文字输入框 */
+      .text-input {
+        position: fixed;
+        min-width: 100px;
+        padding: 4px 8px;
+        border: 2px solid #4A90D9;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.95);
+        font-family: "Microsoft YaHei", sans-serif;
+        outline: none;
+        z-index: 200;
+      }
+
+      /* ============================================ */
+      /* 底部绘图工具栏 */
+      /* ============================================ */
+      .bottom-toolbar {
+        position: fixed;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px 6px;
+        background: rgba(40, 40, 40, 0.95);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        cursor: grab;
+      }
+
+      .bottom-toolbar .toolbar-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        height: 48px;
+        padding: 4px 6px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(50, 50, 50, 0.9);
+        color: #4ADE80;
+        cursor: pointer;
+        font-size: 10px;
+        transition: all 0.15s ease;
+      }
+
+      .bottom-toolbar .toolbar-btn .icon {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .bottom-toolbar .toolbar-btn .label {
+        font-size: 10px;
+        margin-top: 2px;
+        white-space: nowrap;
+      }
+
+      .bottom-toolbar .toolbar-btn:hover {
+        background: rgba(80, 80, 80, 0.95);
+      }
+
+      .bottom-toolbar .toolbar-btn:active {
+        background: rgba(60, 60, 60, 0.95);
+      }
+
+      .bottom-toolbar .toolbar-btn.active {
+        background: rgba(74, 144, 217, 0.9);
+        color: #fff;
+      }
+
+      .bottom-toolbar .toolbar-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .toolbar-divider {
+        width: 1px;
+        height: 36px;
+        background: rgba(100, 100, 100, 0.5);
+        margin: 0 4px;
+      }
+
+      /* ============================================ */
+      /* 侧边功能工具栏 */
+      /* ============================================ */
+      .side-toolbar {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 4px;
+        background: rgba(40, 40, 40, 0.95);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        cursor: grab;
+      }
+
+      .side-toolbar .toolbar-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        padding: 4px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(50, 50, 50, 0.9);
+        color: #4ADE80;
+        cursor: pointer;
+        font-size: 10px;
+        transition: all 0.15s ease;
+      }
+
+      .side-toolbar .toolbar-btn .icon {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .side-toolbar .toolbar-btn .label {
+        font-size: 9px;
+        margin-top: 1px;
+        white-space: nowrap;
+      }
+
+      .side-toolbar .toolbar-btn:hover {
+        background: rgba(80, 80, 80, 0.95);
+      }
+
+      .side-toolbar .toolbar-btn:active {
+        background: rgba(60, 60, 60, 0.95);
+      }
+
+      .side-toolbar .toolbar-btn.active {
+        background: rgba(74, 144, 217, 0.9);
+        color: #fff;
+      }
+
+      .side-toolbar .toolbar-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* 特殊按钮样式 */
+      .side-toolbar .toolbar-btn.save-btn:hover {
+        background: rgba(76, 175, 80, 0.6);
+      }
+
+      .side-toolbar .toolbar-btn.cancel-btn:hover {
+        background: rgba(244, 67, 54, 0.6);
+      }
+
+      .side-toolbar .toolbar-btn.ocr-btn:hover {
+        background: rgba(156, 39, 176, 0.6);
+      }
+
+      .side-toolbar .toolbar-btn.pin-btn:hover {
+        background: rgba(255, 152, 0, 0.6);
+      }
+
+      .side-toolbar .separator {
+        width: 40px;
+        height: 1px;
+        background: rgba(100, 100, 100, 0.5);
+        margin: 2px 0;
+      }
+
+      /* 颜色指示器 */
+      .color-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+      }
+
+      /* ============================================ */
+      /* 提示消息 */
+      /* ============================================ */
+      .toast-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 12px 24px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        font-size: 14px;
+        border-radius: 8px;
+        z-index: 2000;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+
+      .toast-message.show {
+        opacity: 1;
+      }
+
+      /* ============================================ */
+      /* 颜色选择器弹窗 */
+      /* ============================================ */
+      .color-picker-popup {
+        position: fixed;
+        display: none;
+        padding: 8px;
+        background: rgba(40, 40, 40, 0.98);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        z-index: 1100;
+      }
+
+      .color-picker-popup.show {
+        display: block;
+      }
+
+      .color-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+
+      .color-item {
+        width: 28px;
+        height: 28px;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+      }
+
+      .color-item:hover {
+        transform: scale(1.15);
+      }
+
+      .color-item.active {
+        border-color: #fff;
+      }
+
+      /* ============================================ */
+      /* 粗细选择器弹窗 */
+      /* ============================================ */
+      .width-picker-popup {
+        position: fixed;
+        display: none;
+        padding: 6px;
+        background: rgba(40, 40, 40, 0.98);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        z-index: 1100;
+      }
+
+      .width-picker-popup.show {
+        display: block;
+      }
+
+      .width-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 70px;
+        padding: 6px 8px;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.1s ease;
+      }
+
+      .width-item:hover {
+        background: rgba(74, 144, 217, 0.6);
+      }
+
+      .width-item.active {
+        background: rgba(74, 144, 217, 0.8);
+      }
+
+      .width-line {
+        width: 24px;
+        background: #fff;
+        border-radius: 2px;
+      }
+
+      /* ============================================ */
+      /* 编辑模式光标样式 */
+      /* ============================================ */
+      .overlay-mask.cursor-move {
+        cursor: move !important;
+      }
+
+      .overlay-mask.cursor-pointer {
+        cursor: pointer !important;
+      }
+
+      .overlay-mask.cursor-nwse {
+        cursor: nwse-resize !important;
+      }
+
+      .overlay-mask.cursor-nesw {
+        cursor: nesw-resize !important;
+      }
+
+      /* ============================================ */
+      /* 焦点状态视觉指示器（Task 4.4: Requirements 5.2） */
+      /* ============================================ */
+      
+      /**
+       * 当存在选区时，遮罩层变为全透明
+       * 
+       * 修复"选区增亮"问题：
+       * - 选区出现前：遮罩层 30% 暗色（视觉提示正在截图模式）
+       * - 选区出现后：遮罩层变透明，由 selection-rect 的 box-shadow 提供外部暗色
+       * - 这样选区内始终显示原色，Canvas 加载时不会产生亮度跳变
+       */
+      .overlay-mask.selection-active {
+        background-color: transparent !important;
+      }
+
+      /**
+       * 当 overlay 窗口失去焦点时的视觉效果
+       * 
+       * 稍微增加遮罩透明度，让用户知道当前窗口不是活动窗口。
+       * 注意：不要过度变暗，用户仍需要看到内容。
+       */
+      .overlay-mask.unfocused {
+        background-color: rgba(0, 0, 0, 0.4);
+        transition: background-color 0.15s ease;
+      }
+
+      /* ============================================ */
+      /* 录屏模式样式 */
+      /* ============================================ */
+
+      /* 录屏模式下遮罩完全透明（alpha=0 让 Tauri 透明窗口穿透点击） */
+      .overlay-mask.recording-mode {
+        background-color: rgba(0, 0, 0, 0) !important;
+        pointer-events: none !important;
+        cursor: default !important;
+        opacity: 1; /* 保持子元素可见 */
+      }
+
+      /* 录屏模式下选区变为红色闪烁边框 */
+      .selection-rect.recording-border {
+        border: 3px solid #ff4444 !important;
+        box-shadow: 0 0 0 9999px transparent !important;
+        animation: recording-pulse 1.5s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      @keyframes recording-pulse {
+        0%, 100% { border-color: #ff4444; }
+        50% { border-color: #ff8888; }
+      }
+
+      /* 录屏控制栏（嵌在 overlay 内，替代侧边工具栏） */
+      .recording-control-bar {
+        position: fixed;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 14px;
+        background: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(244, 67, 54, 0.6);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        z-index: 1200;
+        backdrop-filter: blur(10px);
+        pointer-events: auto !important;
+        cursor: grab;
+      }
+
+      .recording-control-bar .rec-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #f44336;
+        animation: recording-pulse-dot 1.5s ease-in-out infinite;
+      }
+
+      @keyframes recording-pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+
+      .recording-control-bar .rec-time {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 16px;
+        font-weight: 600;
+        color: #ff6b6b;
+        letter-spacing: 1px;
+        min-width: 50px;
+        text-align: center;
+      }
+
+      .recording-control-bar .rec-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .recording-control-bar .rec-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+      }
+
+      .recording-control-bar .rec-btn.stop:hover {
+        background: rgba(244, 67, 54, 0.6);
+      }
+
+      .recording-control-bar .rec-btn.pause:hover {
+        background: rgba(255, 167, 38, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay-app">
+      <!-- 全屏截图背景（冻结屏幕效果） -->
+      <img id="screenshot-background" alt="" />
+    </div>
+    <script type="module" src="/src/overlay-main.ts"></script>
+  </body>
+</html>

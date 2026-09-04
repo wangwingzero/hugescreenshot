@@ -1,0 +1,92 @@
+[package]
+name = "file-search-service"
+version = "0.1.0"
+description = "虎哥截图文件搜索索引服务 - Windows Service for fast file indexing"
+authors = ["HuGe"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/HuGe/HuGeScreenshot"
+
+# 隐藏控制台窗口（Windows 服务必需）
+[[bin]]
+name = "file-search-service"
+path = "src/main.rs"
+
+[dependencies]
+# Windows 服务框架
+windows-service = "0.7"
+
+# NTFS MFT 和 USN Journal 读取
+# 注意：usn-journal-rs 可能需要替换为更稳定的实现
+# 如果 usn-journal-rs 不可用，可以使用 windows crate 直接调用 Win32 API
+ntfs = "0.4"
+
+# 异步运行时
+tokio = { version = "1", features = ["full", "net", "sync", "time", "rt-multi-thread", "io-util"] }
+
+# 序列化
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bincode = "1"  # 用于索引持久化，比 JSON 更高效
+
+# 模糊搜索
+fuzzy-matcher = "0.3"
+
+# 正则表达式
+regex = "1"
+
+# 拼音支持
+pinyin = "0.10"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+
+# 错误处理
+thiserror = "2"
+anyhow = "1"
+
+# 时间处理
+chrono = { version = "0.4", features = ["serde"] }
+
+# 目录和路径处理
+dirs = "6"
+
+# Windows API（用于 MFT 读取、USN Journal、命名管道等）
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_Ioctl",
+    "Win32_System_Services",
+    "Win32_System_Threading",
+    "Win32_Security",
+    "Win32_System_Pipes",
+] }
+
+[dev-dependencies]
+# 属性测试
+proptest = "1"
+# 临时文件（用于测试）
+tempfile = "3"
+# 测试工具
+tokio-test = "0.4"
+# 异步工具（用于并发测试）
+futures = "0.3"
+# 随机数生成（用于测试）
+rand = "0.8"
+
+[features]
+default = []
+# 用于运行属性测试
+proptest = []
+
+# 构建配置
+[profile.release]
+# 优化大小，服务应该尽量小
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

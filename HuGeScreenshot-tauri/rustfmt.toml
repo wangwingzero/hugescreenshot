@@ -1,0 +1,46 @@
+# rustfmt 配置
+# 参考: https://rust-lang.github.io/rustfmt/
+
+# Rust Edition
+edition = "2021"
+
+# 最大行宽 - 比默认 80 宽，适合现代显示器
+max_width = 100
+
+# 使用空格缩进
+hard_tabs = false
+tab_spaces = 4
+
+# 统一 Unix 换行符
+newline_style = "Unix"
+
+# 自动排序 imports
+reorder_imports = true
+reorder_modules = true
+group_imports = "StdExternalCrate"
+
+# 紧凑启发式 - 减少代码碎片
+use_small_heuristics = "Max"
+
+# 函数参数格式
+fn_params_layout = "Tall"
+
+# 使用 field init shorthand: Foo { x } 而不是 Foo { x: x }
+use_field_init_shorthand = true
+
+# 使用 try! 语法糖 ?
+use_try_shorthand = true
+
+# 格式化字符串字面量
+format_strings = false
+
+# 格式化宏
+format_macro_matchers = true
+
+# 合并 imports: use foo::{bar, baz};
+imports_granularity = "Crate"
+
+# 注释格式化
+wrap_comments = true
+comment_width = 80
+normalize_comments = true

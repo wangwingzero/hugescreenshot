@@ -1,0 +1,133 @@
+{
+  "ocrTestCases": [
+    {
+      "id": "ocr_english_simple",
+      "name": "简单英文",
+      "image": "images/simple.png",
+      "expectedText": "TEST",
+      "minConfidence": 0.9
+    },
+    {
+      "id": "ocr_english_multiline",
+      "name": "多行英文",
+      "image": "images/multiline.png",
+      "expectedLines": 4,
+      "expectedText": "Hello, World!\nThis is line 2.\nThird line here.\nNumbers: 12345",
+      "minConfidence": 0.85
+    },
+    {
+      "id": "ocr_chinese",
+      "name": "中文识别",
+      "image": "images/chinese.png",
+      "expectedText": "你好，世界！",
+      "minConfidence": 0.85
+    },
+    {
+      "id": "ocr_mixed",
+      "name": "中英混合",
+      "image": "images/mixed.png",
+      "expectedPatterns": ["Hello", "你好", "Version", "版本", "v3.0", "2026"],
+      "minConfidence": 0.8
+    },
+    {
+      "id": "ocr_blank",
+      "name": "空白图片",
+      "image": "images/blank.png",
+      "expectedText": "",
+      "expectedBoxes": 0
+    },
+    {
+      "id": "ocr_single_char",
+      "name": "单字符",
+      "image": "images/single_char.png",
+      "expectedText": "A",
+      "minConfidence": 0.9
+    },
+    {
+      "id": "ocr_low_contrast",
+      "name": "低对比度",
+      "image": "images/low_contrast.png",
+      "expectedText": "Low Contrast",
+      "minConfidence": 0.6,
+      "note": "低对比度图片识别率可能较低"
+    },
+    {
+      "id": "ocr_special_chars",
+      "name": "特殊字符",
+      "image": "images/special_chars.png",
+      "expectedPatterns": ["Email", "@", ".com", "￥", "100.00"],
+      "minConfidence": 0.8
+    },
+    {
+      "id": "ocr_hdpi",
+      "name": "高DPI图片",
+      "image": "images/hdpi.png",
+      "expectedText": "HiDPI",
+      "minConfidence": 0.9,
+      "note": "200x200 物理像素，模拟 2x DPR"
+    }
+  ],
+  "performanceTests": [
+    {
+      "id": "perf_small",
+      "name": "小图性能",
+      "imageSize": "100x100",
+      "maxElapsedMs": 500
+    },
+    {
+      "id": "perf_medium",
+      "name": "中图性能",
+      "imageSize": "800x600",
+      "maxElapsedMs": 1000
+    },
+    {
+      "id": "perf_large",
+      "name": "大图性能",
+      "imageSize": "1920x1080",
+      "maxElapsedMs": 3000
+    },
+    {
+      "id": "perf_4k",
+      "name": "4K图性能",
+      "imageSize": "3840x2160",
+      "maxElapsedMs": 5000
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "edge_rotated_text",
+      "name": "旋转文字",
+      "description": "文字有轻微倾斜",
+      "expectSuccess": true,
+      "note": "RapidOCR 支持一定角度的文字倾斜"
+    },
+    {
+      "id": "edge_vertical_text",
+      "name": "竖排文字",
+      "description": "传统中文竖排",
+      "expectSuccess": false,
+      "note": "竖排文字识别可能不准确"
+    },
+    {
+      "id": "edge_handwriting",
+      "name": "手写文字",
+      "description": "手写体文字",
+      "expectSuccess": false,
+      "note": "手写识别不在支持范围内"
+    },
+    {
+      "id": "edge_screenshot_ui",
+      "name": "截图UI元素",
+      "description": "按钮、菜单等UI文字",
+      "expectSuccess": true,
+      "note": "常见场景，应该高识别率"
+    },
+    {
+      "id": "edge_code",
+      "name": "代码截图",
+      "description": "编程代码截图",
+      "expectSuccess": true,
+      "note": "等宽字体，识别率应较高"
+    }
+  ]
+}

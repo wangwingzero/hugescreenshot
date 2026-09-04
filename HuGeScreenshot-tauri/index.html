@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>虎哥截图</title>
+    <!-- 
+      主题初始化脚本 - 防止 FOUC (Flash of Unstyled Content)
+      在 CSS 加载前执行，确保页面首次渲染时就使用正确的主题
+      @validates Requirements 5.4
+    -->
+    <script>
+      (function() {
+        // 从 localStorage 读取用户主题偏好
+        var stored = localStorage.getItem('huge-theme');
+        var theme = 'light';
+        
+        if (stored === 'dark') {
+          theme = 'dark';
+        } else if (stored === 'light') {
+          theme = 'light';
+        } else {
+          // 默认或 'system': 跟随系统主题
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          }
+        }
+        
+        // 立即应用主题类名，防止闪烁
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.classList.add(theme);
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

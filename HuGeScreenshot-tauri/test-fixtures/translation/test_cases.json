@@ -1,0 +1,96 @@
+{
+  "testCases": [
+    {
+      "id": "translate_en_zh",
+      "name": "英文转中文",
+      "source": "en",
+      "target": "zh-CN",
+      "input": "Hello, World!",
+      "expected": "你好，世界！",
+      "providers": ["google", "deepl", "baidu"]
+    },
+    {
+      "id": "translate_zh_en",
+      "name": "中文转英文",
+      "source": "zh-CN",
+      "target": "en",
+      "input": "今天天气真好",
+      "expected": "The weather is really nice today",
+      "providers": ["google", "deepl", "baidu"]
+    },
+    {
+      "id": "translate_ja_zh",
+      "name": "日文转中文",
+      "source": "ja",
+      "target": "zh-CN",
+      "input": "こんにちは",
+      "expected": "你好",
+      "providers": ["google", "deepl"]
+    },
+    {
+      "id": "translate_long_text",
+      "name": "长文本翻译",
+      "source": "en",
+      "target": "zh-CN",
+      "input": "Artificial intelligence (AI) is intelligence demonstrated by machines, as opposed to natural intelligence displayed by animals including humans. AI research has been defined as the field of study of intelligent agents, which refers to any system that perceives its environment and takes actions that maximize its chance of achieving its goals.",
+      "expected": null,
+      "note": "长文本不验证精确匹配，只验证返回非空"
+    },
+    {
+      "id": "translate_special_chars",
+      "name": "特殊字符翻译",
+      "source": "en",
+      "target": "zh-CN",
+      "input": "Price: $100.00 (20% off)",
+      "expected": null,
+      "note": "验证特殊字符不丢失"
+    },
+    {
+      "id": "translate_empty",
+      "name": "空文本翻译",
+      "source": "en",
+      "target": "zh-CN",
+      "input": "",
+      "expected": "",
+      "expectError": false
+    },
+    {
+      "id": "translate_whitespace",
+      "name": "纯空白翻译",
+      "source": "en",
+      "target": "zh-CN",
+      "input": "   \n\t  ",
+      "expected": "",
+      "expectError": false
+    },
+    {
+      "id": "translate_mixed",
+      "name": "中英混合翻译",
+      "source": "auto",
+      "target": "zh-CN",
+      "input": "Hello 世界, this is a test 测试",
+      "expected": null,
+      "note": "验证混合语言处理"
+    }
+  ],
+  "providers": {
+    "google": {
+      "name": "Google Translate",
+      "supportedLanguages": ["en", "zh-CN", "zh-TW", "ja", "ko", "fr", "de", "es", "ru"],
+      "maxLength": 5000,
+      "rateLimit": "100/min"
+    },
+    "deepl": {
+      "name": "DeepL",
+      "supportedLanguages": ["en", "zh", "ja", "de", "fr", "es", "it", "nl", "pl", "ru"],
+      "maxLength": 10000,
+      "rateLimit": "500000/month"
+    },
+    "baidu": {
+      "name": "百度翻译",
+      "supportedLanguages": ["en", "zh", "jp", "kor", "fra", "de", "spa", "ru"],
+      "maxLength": 6000,
+      "rateLimit": "1000/hour"
+    }
+  }
+}

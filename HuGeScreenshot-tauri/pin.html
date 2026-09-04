@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>钉图</title>
+    <style>
+      /* 关键：确保无边距和全屏显示 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        /* 禁用文本选择 */
+        user-select: none;
+        -webkit-user-select: none;
+        /* 背景色 - 图片加载前显示 */
+        background-color: #1a1a1a;
+      }
+      
+      #pin-app {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      
+      /* 钉图图像容器 */
+      .pin-image-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      
+      /* 钉图图像 */
+      .pin-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        /* 禁止拖拽图片 */
+        -webkit-user-drag: none;
+        user-drag: none;
+        pointer-events: none;
+      }
+      
+      /* 拖拽区域 - 整个窗口可拖拽 */
+      .drag-region {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* Tauri 拖拽区域 */
+        -webkit-app-region: drag;
+        app-region: drag;
+      }
+      
+      /* 控制栏 - 悬停时显示 */
+      .control-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 32px;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        /* 控制栏不可拖拽 */
+        -webkit-app-region: no-drag;
+        app-region: no-drag;
+      }
+      
+      #pin-app:hover .control-bar {
+        opacity: 1;
+      }
+      
+      /* 控制按钮 */
+      .control-btn {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 4px;
+        color: #fff;
+        font-size: 14px;
+        transition: background 0.15s ease;
+      }
+      
+      .control-btn:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+      
+      .control-btn.close:hover {
+        background: rgba(255, 59, 48, 0.8);
+      }
+      
+      /* 透明度滑块容器 */
+      .opacity-control {
+        display: flex;
+        align-items: center;
+        margin-right: 8px;
+      }
+      
+      .opacity-label {
+        color: #fff;
+        font-size: 11px;
+        margin-right: 4px;
+        opacity: 0.8;
+      }
+      
+      .opacity-slider {
+        width: 60px;
+        height: 4px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        cursor: pointer;
+      }
+      
+      .opacity-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      
+      /* 调整大小指示器 */
+      .resize-handle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        cursor: se-resize;
+        /* 不可拖拽 */
+        -webkit-app-region: no-drag;
+        app-region: no-drag;
+      }
+      
+      .resize-handle::before {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid rgba(255, 255, 255, 0.5);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+      }
+      
+      /* 加载状态 */
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 14px;
+        opacity: 0.7;
+      }
+      
+      .loading.hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pin-app">
+      <div class="loading">加载中...</div>
+      <div class="pin-image-container">
+        <img class="pin-image" alt="钉图" />
+      </div>
+      <div class="drag-region"></div>
+      <div class="control-bar">
+        <div class="opacity-control">
+          <span class="opacity-label">透明度</span>
+          <input type="range" class="opacity-slider" min="20" max="100" value="100" />
+        </div>
+        <button class="control-btn close" title="关闭 (双击窗口也可关闭)">✕</button>
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+    <script type="module" src="/src/pin-main.ts"></script>
+  </body>
+</html>

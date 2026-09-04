@@ -1,0 +1,7 @@
+# Clippy 配置（仅支持 Clippy 专用参数）
+# 说明:
+# - lint level（warn/deny/allow）不应写在此文件中
+# - 若需全局 lint level，请在 Cargo.toml 使用 [lints] 配置
+
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

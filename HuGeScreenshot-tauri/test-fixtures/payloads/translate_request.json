@@ -1,0 +1,10 @@
+{
+  "id": "550e8400-e29b-41d4-a716-446655440002",
+  "service": "translate",
+  "method": "translate",
+  "params": {
+    "text": "Hello, World!",
+    "target_lang": "zh",
+    "provider": "google"
+  }
+}

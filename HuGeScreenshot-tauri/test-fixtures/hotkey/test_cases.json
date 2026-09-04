@@ -1,0 +1,108 @@
+{
+  "hotkeyTests": [
+    {
+      "id": "hotkey_screenshot",
+      "name": "截图热键",
+      "action": "screenshot",
+      "defaultShortcut": "Alt+A",
+      "validAlternatives": ["Ctrl+Alt+A", "Ctrl+Shift+S", "F12"]
+    },
+    {
+      "id": "hotkey_ocr",
+      "name": "OCR热键",
+      "action": "ocr",
+      "defaultShortcut": "Alt+O",
+      "validAlternatives": ["Ctrl+Alt+O", "Ctrl+Shift+O"]
+    },
+    {
+      "id": "hotkey_recording",
+      "name": "录屏热键",
+      "action": "recording",
+      "defaultShortcut": "Alt+R",
+      "validAlternatives": ["Ctrl+Alt+R", "Ctrl+Shift+R"]
+    },
+    {
+      "id": "hotkey_pin",
+      "name": "钉图热键",
+      "action": "pin",
+      "defaultShortcut": "Alt+P",
+      "validAlternatives": ["Ctrl+Alt+P", "Ctrl+Shift+P"]
+    }
+  ],
+  "invalidHotkeys": [
+    {
+      "shortcut": "",
+      "reason": "空字符串"
+    },
+    {
+      "shortcut": "A",
+      "reason": "单字母无修饰键"
+    },
+    {
+      "shortcut": "Ctrl",
+      "reason": "只有修饰键"
+    },
+    {
+      "shortcut": "Alt+Ctrl+Shift+A",
+      "reason": "过多修饰键（可能有效但不推荐）"
+    },
+    {
+      "shortcut": "Win+A",
+      "reason": "系统保留热键"
+    }
+  ],
+  "conflictScenarios": [
+    {
+      "id": "conflict_same_app",
+      "name": "同应用冲突",
+      "existingHotkey": "Alt+A",
+      "newHotkey": "Alt+A",
+      "expectedResult": "conflict",
+      "note": "同一应用内热键重复"
+    },
+    {
+      "id": "conflict_system",
+      "name": "系统热键冲突",
+      "systemHotkey": "Alt+Tab",
+      "newHotkey": "Alt+Tab",
+      "expectedResult": "system_conflict",
+      "note": "与系统热键冲突，无法注册"
+    },
+    {
+      "id": "conflict_other_app",
+      "name": "其他应用冲突",
+      "otherAppHotkey": "Alt+A",
+      "newHotkey": "Alt+A",
+      "expectedResult": "may_conflict",
+      "note": "可能与其他应用冲突，无法检测"
+    }
+  ],
+  "hotkeyFormats": {
+    "valid": [
+      "Alt+A",
+      "Ctrl+A",
+      "Shift+A",
+      "Ctrl+Alt+A",
+      "Ctrl+Shift+A",
+      "Alt+Shift+A",
+      "Ctrl+Alt+Shift+A",
+      "F1",
+      "F12",
+      "Ctrl+F1",
+      "Alt+1",
+      "Ctrl+Space"
+    ],
+    "invalid": [
+      "",
+      "A",
+      "Alt",
+      "Ctrl+",
+      "+A",
+      "Alt++A",
+      "Alt A",
+      "alt+a",
+      "ALT+A"
+    ],
+    "note": "热键字符串区分大小写，使用 Pascal 命名"
+  }
+}

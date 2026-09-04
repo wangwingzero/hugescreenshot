@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b5a92be3d615fe4350c6c7d57d5b5208ba30062455ccc88a80c03c35220e5a0d # shrinks to file_names = ["AI.a", "a.a", "A.a", "A.a", "橂.a"], keyword = "ia"
+cc 3a046d8dcf14e7efdc52bb050073590968338cd3c8743818943d56a34fb57b01 # shrinks to file_names = ["一.c", "A.a", "aL0h_b4l", "i32ZBa_dXtz-E.hwg", "U-4l3___0j_FL.j"], keyword = "c", match_mode = Fuzzy

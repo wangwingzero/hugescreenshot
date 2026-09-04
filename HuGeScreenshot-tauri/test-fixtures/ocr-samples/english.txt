@@ -1,0 +1,4 @@
+Hello, World!
+This is a test image for OCR recognition.
+Line 3: Testing multiline detection.
+Line 4: Numbers 12345 and symbols !@#$%

@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 66b6ba288da8224a34248869c7ba2a7a5b30ae82f490527ed26b8eeb09fa9593 # shrinks to overlay_label = "ocr-result", ocr_label = "ocr-result"
+cc e56beddef7d29b8b7b2014d94bdd493696e07d9cb0211635395336e49e123ce6 # shrinks to overlay_label = "ocr-result", ocr_label = "ocr-result"
+cc 665bbd7e8eea2e6c8e6fc9e7b09fc527626e82d9e6484eec85aa7d859e1994c0 # shrinks to overlay_label = "ocr-result", ocr_label = "ocr-result", switch_sequence = [false]

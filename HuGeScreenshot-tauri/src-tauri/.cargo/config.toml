@@ -1,0 +1,16 @@
+# Rust Native OCR 编译优化配置
+# 启用 AVX2 和 FMA SIMD 指令集，提升 OpenVINO 推理性能
+# 兼容 x86-64-v3 (Intel/AMD 2015+ 处理器)
+
+[build]
+rustflags = ["-C", "target-feature=+avx2,+fma"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+avx2,+fma"]
+
+[env]
+# OpenVINO runtime-linking 配置
+# DLL 文件位于 src-tauri/openvino/ 目录
+# 运行时会从 exe 同目录或 PATH 中查找 DLL
+# 设置 OpenVINO 安装目录（用于 openvino-finder 定位 DLL）
+OPENVINO_INSTALL_DIR = { value = "openvino", relative = true }

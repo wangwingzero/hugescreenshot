@@ -1,0 +1,203 @@
+[package]
+name = "hugescreenshot-tauri"
+version = "0.1.26"
+description = "虎哥截图 - Windows 桌面截图工具"
+authors = ["HuGe"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/HuGe/HuGeScreenshot"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "hugescreenshot_tauri_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+# 关闭 doctest：Tauri 多 crate-type（staticlib/cdylib）在 Windows 上会导致 doc-test 链接不稳定
+doctest = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Tauri 核心
+tauri = { version = "2", features = ["protocol-asset", "tray-icon", "image-png", "devtools"] }
+tauri-plugin-opener = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
+
+# 序列化
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# 异步运行时
+tokio = { version = "1", features = ["full", "process", "io-util", "sync"] }
+futures = "0.3"
+
+# 截图功能
+screenshots = "0.8"
+
+# 数据库
+rusqlite = { version = "0.32", features = ["bundled"] }
+r2d2 = "0.8"
+r2d2_sqlite = "0.25"
+
+# 错误处理
+thiserror = "2"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+
+
+# 系统信息与数据目录
+hostname = "0.4"
+dirs = "6"
+
+# HTTP 客户端（规章在线搜索等）
+reqwest = { version = "0.12", features = ["json", "native-tls", "gzip"], default-features = false }
+base64 = "0.22"
+
+# HTML 解析（替代 Python BeautifulSoup，用于规章在线搜索）
+scraper = "0.22"
+ego-tree = "0.10"
+urlencoding = "2.1.3"
+
+# MD5（图片哈希与剪贴板去重）
+md5 = "0.7"
+
+# 时间处理
+chrono = { version = "0.4", features = ["serde"] }
+
+# 剪贴板（绕过 Tauri 插件的 PATH_TOO_LONG 问题）
+arboard = "3"
+
+# 图像处理（用于 PNG 解码）
+image = "0.25"
+
+# OCR 引擎（OpenVINO + PP-OCRv4）
+# OpenVINO 2025.x: Intel 高性能推理引擎
+# - 在 Intel CPU 上比 ONNX Runtime 快 2-3 倍
+# - 支持直接加载 ONNX 模型（无需转换为 IR 格式）
+# - AMD CPU 也能运行（无加速但不会更慢）
+# - runtime-linking: 运行时动态加载 DLL，编译时不需要安装 OpenVINO
+openvino = { version = "0.9", features = ["runtime-linking"] }
+ndarray = "0.16"
+rayon = "1.10"
+num_cpus = "1.16"
+once_cell = "1.19"
+# 无锁并发队列（用于 InferRequest 池）
+crossbeam = "0.8"
+
+# 文件系统遍历（用于本地文件搜索索引）
+walkdir = "2"
+# 二进制序列化（用于文件索引缓存持久化）
+bincode = "1"
+
+# 文件转 Markdown（纯 Rust 高性能方案）
+# PDF 文本提取 & 渲染（pdfium-render: Google PDFium 引擎，支持 CJK 字体）
+pdfium-render = "0.8.37"
+# DOCX 解析
+docx-rs = "0.4"
+# HTML 转 Markdown
+htmd = "0.1"
+# 文件类型检测
+infer = "0.16"
+
+# 全文搜索引擎（规章本地索引）
+tantivy = "0.22"
+jieba-rs = "0.7"
+
+# 全局鼠标/键盘事件监听
+rdev = "0.5"
+
+# Unicode 文本处理（用于关键词提取）
+unicode-segmentation = "1.11"
+unicode-width = "0.1"
+
+# 正则表达式（用于解析 PDF 链接）
+regex = "1"
+lazy_static = "1.4"
+url = "2"
+
+# Windows API（用于窗口检测、空闲检测、高 DPI 支持、DXGI/WGC 截图）
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_HiDpi",
+    "Win32_Graphics_Gdi",
+    "Win32_Graphics_Dwm",
+    "Win32_System_Threading",
+    "Win32_System_SystemInformation",
+    "Win32_System_Diagnostics",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    # DXGI 截图/录屏引擎所需
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    # Windows Graphics Capture (WGC) 截图引擎所需
+    "Graphics_Capture",
+    "Graphics_DirectX",
+    "Graphics_DirectX_Direct3D11",
+    "Win32_System_WinRT_Graphics_Capture",
+    "Win32_System_WinRT_Direct3D11",
+    "Win32_System_WinRT",
+    # WASAPI 音频捕获所需（录屏音频）
+    "Win32_Media_Audio",
+    "Win32_System_Com",
+    "Wdk_System_SystemServices",
+] }
+# Windows 注册表（用于自动启动）
+winreg = "0.52"
+
+[dev-dependencies]
+# 属性测试
+proptest = "1"
+# 基准测试
+criterion = "0.5"
+# 临时文件（用于测试）
+tempfile = "3"
+# 串行测试（用于共享全局状态的测试）
+serial_test = "3"
+# 日志捕获（用于测试日志输出）
+tracing-test = { version = "0.2", features = ["no-env-filter"] }
+
+[features]
+default = []
+# 用于运行属性测试
+proptest = []
+# OCR 混合精度策略（无需 feature 切换）
+# - 检测模型: INT8 量化（速度快 ~1.9x）
+# - 识别模型: preprocessed/FP16（精度优先，避免字符丢失）
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+
+[[bench]]
+name = "annotation_bench"
+harness = false
+
+[[bench]]
+name = "screenshot_bench"
+harness = false
+
+[[bench]]
+name = "sidecar_bench"
+harness = false
